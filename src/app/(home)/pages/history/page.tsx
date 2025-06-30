@@ -30,7 +30,6 @@ export default function HistoryPage() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [detailData, setDetailData] = useState<any>(null);
 
-  // Jika sedang lihat detail pengiriman
   if (detailData) {
     return (
       <div className="min-h-screen w-full bg-black relative flex flex-col items-center pb-20 overflow-hidden">

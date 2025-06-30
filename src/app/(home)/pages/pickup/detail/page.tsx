@@ -6,7 +6,6 @@ import BottomNavPage from "@/components/bottom-nav";
 import ScanQrcode from "@/components/scan/ScanQrcode";
 import DetailPengiriman from "@/components/DetailPengiriman";
 import HeaderPickupDetail from "@/../features/pickup-detail/components/HeaderPickupDetail";
-import ScanQrPickupPage from "../../../../../../features/pickup-detail/components/ScanQrPickupPage";
 
 const boxList = [
   {
@@ -41,9 +40,8 @@ export default function PickupDetailPage() {
   return (
     <div className="min-h-screen bg-black bg-opacity-80 relative flex justify-center pb-24">
       <div className="w-full max-w-[375px] mx-auto">
-        <HeaderPickupDetail />
-        <ScanQrPickupPage onScanClick={() => setShowCamera(true)} />
-        <div className="px-4 py-4">
+        <HeaderPickupDetail onScanClick={() => setShowCamera(true)} />
+        <div className="py-4">
           <div className="font-bold text-white text-base mb-2">
             32 Box <span className="font-normal text-gray-400">Pickup Pengantaran</span>
           </div>
@@ -55,7 +53,6 @@ export default function PickupDetailPage() {
                 className={`bg-[#232323] rounded-2xl p-4 flex flex-col gap-2 shadow relative mb-4 transition border-2 ${isOpen ? "border-yellow-400" : "border-transparent"} cursor-pointer`}
                 onClick={() => setOpenIdx(isOpen ? null : idx)}
               >
-                {/* Badge status pojok kanan atas */}
                 <span className="absolute right-4 top-4 z-10">
                   <span className="inline-flex items-center gap-1 bg-[#FFB37C] text-white text-xs font-bold rounded-full px-3 py-1 shadow">
                     <span className="inline-block w-4 h-4 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
@@ -76,7 +73,7 @@ export default function PickupDetailPage() {
                 <div className="text-white font-bold text-lg tracking-wide">{item.name}</div>
                 <div className="text-gray-300 text-sm">{item.address}</div>
                 {isOpen && (
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2 mt 3">
                     <button className="flex-1 bg-[#FFD823] text-black font-bold rounded-full py-2" onClick={e => {e.stopPropagation(); setDetailData(item); setShowDetail(true);}}>Detail Pengiriman</button>
                     <button className="flex-1 bg-[#FF5A5A] text-white font-bold rounded-full py-2">Delete</button>
                   </div>
@@ -93,7 +90,7 @@ export default function PickupDetailPage() {
         <ScanQrcode onClose={() => setShowCamera(false)} />
       )}
       {showDetail && detailData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
+        <div className="fixed inset-0 z-50 flex items-center jfalsey-center bg-black bg-opacity-80">
           <DetailPengiriman
             paketId={`#${detailData.id}`}
             alamat={detailData.address}

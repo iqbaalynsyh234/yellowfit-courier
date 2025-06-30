@@ -1,4 +1,4 @@
-import { apiCall, API_ENDPOINTS } from '../../BaseUrl';
+import { apiCall, API_ENDPOINTS } from '../BaseUrl';
 
 export interface DashboardStats {
   totalPickups: number;

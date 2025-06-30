@@ -20,9 +20,9 @@ const pickupData = [
 export default function PickupPage() {
   const router = useRouter();
   return (
-    <div className="min-h-screen bg-black bg-opacity-80 relative flex justify-center pb-24">
-      <div className="w-full max-w-[375px] mx-auto">
-       <HeaderPagePickup />
+    <div className="min-h-screen bg-black bg-opacity-80 relative pb-24 flex justify-center">
+      <div className="w-full max-w-[385px] mx-auto">
+        <HeaderPagePickup />
         <DashboardTanggal />
         <div className="flex flex-col gap-4 px-4">
           {pickupData.map((item, idx) => (

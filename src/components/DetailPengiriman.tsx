@@ -32,7 +32,7 @@ export default function DetailPengiriman({
       {/* Tombol Close */}
       {onClose && (
         <button
-          className="absolute top-4 right-4 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 text-black rounded-full p-2 shadow"
+          className="absolute top-3 right-4 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 text-black rounded-full p-2 shadow"
           onClick={onClose}
           aria-label="Tutup"
         >
@@ -41,7 +41,7 @@ export default function DetailPengiriman({
           </svg>
         </button>
       )}
-      {/* Header */}
+
       <div className="bg-[#FFD823] px-5 py-5 flex items-center justify-center w-full">
         <span className="font-bold text-black text-base">Detail Pengiriman</span>
       </div>

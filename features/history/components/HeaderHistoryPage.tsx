@@ -5,7 +5,7 @@ export default function HeaderHistoryPage() {
     <div
       className="absolute"
       style={{
-        width: 375,
+        width: 395,
         height: 812,
         top: "50%",
         left: "50%",
