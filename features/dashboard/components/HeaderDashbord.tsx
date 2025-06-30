@@ -16,7 +16,7 @@ export default function HeaderDashboardPage() {
   }
 
   return (
-    <div className="bg-[#FFD823] pt-4 pb-4 px-4 z-10 relative rounded-b-2xl" style={{ width: 385, margin: '0 auto' }}>
+    <div className="bg-[#FFD823] w-full max-w-[375px] mx-auto pt-4 pb-4 px-4 z-10 relative">
       <div className="flex items-center mb-3">
         <Image src="/assets/yfk/image/logo-item.png" alt="Logo" width={170} height={170} className="mr-2" />
       </div>
