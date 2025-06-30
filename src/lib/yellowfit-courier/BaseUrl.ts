@@ -1,13 +1,4 @@
-
 export const BASE_URL = process.env.COURIER_API_URL;
-export const API_ENDPOINTS = {
-  SIGNIN: '/auth/signin',
-  OTP: '/auth/otp',
-  DASHBOARD: '/dashboard',
-  PICKUP: '/pickup',
-  PICKUP_DETAIL: (id: string) => `/pickup/${id}`,
-  PROFILE: '/profile',
-} as const;
 
 // Fetch API configuration
 export const fetchApi = async (
@@ -15,7 +6,6 @@ export const fetchApi = async (
   options: RequestInit = {}
 ): Promise<Response> => {
   const url = `${BASE_URL}${endpoint}`;
-  
   const defaultOptions: RequestInit = {
     headers: {
       'Content-Type': 'application/json',

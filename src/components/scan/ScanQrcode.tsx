@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import ErrorQrcode from "./ErrorQrcode";
+import SuccesQrcode from "./SuccesQrcode";
 
 interface QrCodePageProps {
   onClose?: () => void;
@@ -11,12 +12,13 @@ export default function QrCodePage({ onClose }: QrCodePageProps) {
   const [cameraActive, setCameraActive] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const [error, setError] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [scannedResult, setScannedResult] = useState<string | null>(null);
 
   useEffect(() => {
     async function enableCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        // console.log(stream);
         setCameraActive(true);
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -54,15 +56,24 @@ export default function QrCodePage({ onClose }: QrCodePageProps) {
         const dataUrl = canvas.toDataURL("image/png");
         setPhoto(dataUrl);
 
-        // Dummy validasi: selalu gagal (ganti dengan validasi asli jika ada)
-        setTimeout(() => setError(true), 1000);
+        // Ganti dengan validasi asli jika sudah ada QR reader
+        setTimeout(() => {
+          if (dataUrl.includes("VALID")) {
+            setSuccess(true);
+            setError(false);
+            setScannedResult("VALID QR");
+          } else {
+            setError(true);
+            setSuccess(false);
+            setScannedResult(null);
+          }
+        }, 1000);
       }
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 w-full min-h-screen flex flex-col justify-center items-center bg-transparent">
-      {/* Background image absolute */}
       <div className="absolute inset-0 w-full h-full z-0 flex justify-center">
         <div className="relative w-full max-w-[375px] h-full">
           <Image
@@ -99,7 +110,7 @@ export default function QrCodePage({ onClose }: QrCodePageProps) {
             {error ? (
               <ErrorQrcode onScanAgain={() => {
                 setError(false);
-                setPhoto(null); // Back to camera
+                setPhoto(null);
               }} />
             ) : (
               <>
@@ -142,6 +153,11 @@ export default function QrCodePage({ onClose }: QrCodePageProps) {
           </div>
         </div>
       </div>
+      {success ? (
+        <SuccesQrcode onScanAgain={() => { setSuccess(false); setPhoto(null); setError(false); setScannedResult(null); }} />
+      ) : error ? (
+        <ErrorQrcode onScanAgain={() => { setError(false); setPhoto(null); setSuccess(false); setScannedResult(null); }} />
+      ) : null}
     </div>
   );
 }

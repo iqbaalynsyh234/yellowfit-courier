@@ -111,7 +111,7 @@ export default function DashboardPage() {
                   </div>
                   {!order.berangkat && idx === 0 && (
                     <button className="w-full bg-[#FFD823] text-black font-bold py-4 rounded-xl text-center text-base shadow-lg mt-4 mb-2" onClick={() => handleBerangkat(order.id)}>
-                      Berangkat Sekarang
+                      Berangkat Sekarang 
                     </button>
                   )}
                 </>

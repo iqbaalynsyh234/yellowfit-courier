@@ -69,7 +69,7 @@ export default function BottomNavPage() {
             className="w-6 h-6 mb-1 transition filter brightness-0 invert group-hover:brightness-100 group-hover:invert-0 group-hover:sepia group-hover:saturate-200 group-hover:hue-rotate-45"
           />
           <span className={`text-lg group-hover:text-yellow-400 ${
-            pathname === "/profil" ? "text-yellow-400 font-bold" : ""
+            pathname === "/pages/profile" ? "text-yellow-400 font-bold" : ""
           }`}>Profil</span>
         </button>
       </div>
