@@ -6,7 +6,6 @@ interface AllertPageProps {
   buttonText?: string;
   onButtonClick?: () => void;
 }
-
 export default function AllertPage({
   show,
   onClose,

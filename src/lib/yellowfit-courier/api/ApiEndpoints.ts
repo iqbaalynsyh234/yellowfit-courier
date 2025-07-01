@@ -5,4 +5,4 @@ export const API_ENDPOINTS = {
   PICKUP: '/pickup',
   PICKUP_DETAIL: (id: string) => `/pickup/${id}`,
   PROFILE: '/profile',
-} as const; 
+} as const;
