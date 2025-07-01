@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export const BASE_URL = process.env.NEXT_PUBLIC_URL;
+export const BASE_URL = process.env.YELLOWFIT_COURIER_API_DEV;
 export const MOCK_BASE_URL = process.env.NEXT_PUBLIC_MOCK_BASE_URL;
 export const NEXT_PUBLIC_PROD_URL = process.env.NEXT_PUBLIC_PROD_URL || '';
 
@@ -15,12 +15,11 @@ const axiosInstance = axios.create({
 // Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Add auth token if available
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    return config;
+    return config;  
   },
   (error) => {
     return Promise.reject(error);
@@ -30,7 +29,7 @@ axiosInstance.interceptors.request.use(
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
-    return response.data; // Return only the data
+    return response.data; 
   },
   (error) => {
     if (error.response?.status === 401) {

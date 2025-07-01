@@ -1,28 +1,14 @@
 import Image from "next/image";
 
-export default function HeaderHistoryPage() {
+export default function HeaderHistoryPage({ children }: { children?: React.ReactNode }) {
   return (
-    <div
-      className="absolute"
-      style={{
-        width: 395,
-        height: 812,
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
-        opacity: 0.8,
-        zIndex: 0,
-      }}
-     >
-      <Image src="/assets/yfk/image/bg-img.png" alt="Background" width={475} height={912} style={{ objectFit: "cover", width: "100%", height: "100%" }} priority />
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(0,0,0,0.6)",
-          zIndex: 1,
-        }}
-      />
+    <div className="bg-[#FFD823] w-full max-w-[470px] mx-auto pt-4 pb-4 px-4 z-10 relative rounded-none">
+      <div className="flex items-center mb-3">
+        <Image src="/assets/yfk/image/logo-item.png" alt="Logo" width={170} height={170} className="mr-2" />
+      </div>
+      <div className="text-black font-bold text-lg mb-1">History Pengantaran</div>
+      <div className="text-black text-xs mb-3">Masukkan Kode Barcode atau scan barcode</div>
+      {children}
     </div>
   );
 }

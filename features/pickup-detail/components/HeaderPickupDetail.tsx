@@ -7,7 +7,7 @@ type HeaderPickupDetailProps = {
 export default function HeaderPickupDetail({ onScanClick }: HeaderPickupDetailProps) {
   const router = useRouter();
   return (
-    <div className="bg-[#FFD823] w-full px-4 pt-4 pb-4 flex flex-col gap-2 rounded-none">
+    <div className="bg-[#FFD823] w-full max-w-[470px] mx-auto px-4 pt-4 pb-4 flex flex-col gap-2 rounded-none">
       <div className="flex items-center gap-2 mb-2">
         <button
           onClick={() => router.back()}

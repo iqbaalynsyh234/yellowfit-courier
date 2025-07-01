@@ -39,9 +39,9 @@ export default function PickupDetailPage() {
 
   return (
     <div className="min-h-screen bg-black bg-opacity-80 relative flex justify-center pb-24">
-      <div className="w-full max-w-[375px] mx-auto">
+      <div className="w-full max-w-[470px] mx-auto">
         <HeaderPickupDetail onScanClick={() => setShowCamera(true)} />
-        <div className="py-4">
+        <div className="py-4 mt-2">
           <div className="font-bold text-white text-base mb-2">
             32 Box <span className="font-normal text-gray-400">Pickup Pengantaran</span>
           </div>
@@ -83,7 +83,7 @@ export default function PickupDetailPage() {
           })}
         </div>
       </div>
-      <div className="fixed z-50 w-full max-w-[375px] left-1/2 -translate-x-1/2 bottom-4">
+      <div className="fixed z-50 w-full max-w-[475px] left-1/2 -translate-x-1/2 bottom-4 mt-2">
         <BottomNavPage />
       </div>
       {showCamera && (

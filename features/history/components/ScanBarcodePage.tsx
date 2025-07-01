@@ -9,7 +9,7 @@ interface ScanBarcodePageProps {
 
 export default function ScanBarcodePage({ value, onChange, onScanClick }: ScanBarcodePageProps) {
   return (
-    <div className="w-full max-w-[375px] bg-[#FFD823] px-4 pt-6 pb-4 relative z-10">
+    <div className="w-full max-w-[475px] bg-[#FFD823] px-4 pt-6 pb-4 relative z-10">
       <div className="flex items-center mb-2">
         <Image src="/assets/yfk/image/logo-item.png" alt="Logo" width={170} height={180} className="mr-2" />
       </div>

@@ -8,7 +8,7 @@ export default function HeaderDashboardPage() {
   if (showScan) {
     return (
       <div className="fixed inset-0 z-[9999] w-full h-full flex items-center justify-center bg-black bg-opacity-80">
-        <div className="w-full max-w-[375px] mx-auto">
+        <div className="w-full max-w-[485px] mx-auto">
           <QrCodePage onClose={() => setShowScan(false)} />
         </div>
       </div>
@@ -16,7 +16,7 @@ export default function HeaderDashboardPage() {
   }
 
   return (
-    <div className="bg-[#FFD823] w-full max-w-[375px] mx-auto pt-4 pb-4 px-4 z-10 relative">
+    <div className="bg-[#FFD823] w-full max-w-[470px] mx-auto pt-4 pb-4 px-4 z-10 relative">
       <div className="flex items-center mb-3">
         <Image src="/assets/yfk/image/logo-item.png" alt="Logo" width={170} height={170} className="mr-2" />
       </div>

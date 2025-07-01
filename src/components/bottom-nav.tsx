@@ -6,7 +6,7 @@ export default function BottomNavPage() {
   const router = useRouter();
 
   return (
-    <div className="fixed z-50 w-full max-w-[375px] left-1/2 -translate-x-1/2 bottom-4">
+    <div className="fixed z-50 w-full max-w-[470px] left-1/2 -translate-x-1/2 bottom-4 mb-7">
       <div className="flex justify-between items-center bg-black bg-opacity-80 border border-gray-700 rounded-full px-4 py-2 shadow-lg">
         <button
           className={`flex flex-col items-center flex-1 group ${

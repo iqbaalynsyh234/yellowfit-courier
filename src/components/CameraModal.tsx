@@ -36,7 +36,7 @@ export default function CameraModalPages({ onClose, onSave }: CameraModalPagesPr
 
   return (
     <div className="fixed inset-0 w-full h-full z-50 flex items-center justify-center bg-black bg-opacity-80">
-      <div className="relative w-full max-w-[375px] h-full max-h-screen mx-auto overflow-y-auto shadow-xl bg-transparent flex flex-col">
+      <div className="relative w-full max-w-[485px] h-full max-h-screen mx-auto overflow-y-auto shadow-xl bg-transparent flex flex-col">
         <div className="bg-[#FFD823] px-4 py-3 flex items-center justify-between sticky top-0 z-20 w-full">
           <span className="font-bold text-black text-base">Foto Pengantaran</span>
           <button className="bg-white text-black px-3 py-1 rounded-lg text-xs font-semibold shadow" style={{ minWidth: 70 }} onClick={onClose}>

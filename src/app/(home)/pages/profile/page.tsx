@@ -8,7 +8,7 @@ export default function ProfilePage() {
   const router = useRouter();
   return (
     <div className="min-h-screen bg-black pb-24 flex justify-center">
-      <div className="w-full max-w-[375px]">
+      <div className="w-full max-w-[475px]">
         <HeaderProfilePage />
 
         <div className="px-4 mt-4">

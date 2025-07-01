@@ -28,7 +28,7 @@ export default function DetailPengiriman({
   };
 
   return (
-    <div className="w-full max-w-[375px] mx-auto flex flex-col min-h-screen relative">
+    <div className="w-full max-w-[475px] mx-auto flex flex-col min-h-screen relative">
       {/* Tombol Close */}
       {onClose && (
         <button
@@ -94,7 +94,7 @@ export default function DetailPengiriman({
         src="/assets/yfk/image/bg-img.png"
         alt="Background"
         className="object-cover"
-        style={{ width: 676, height: 443 }}
+        style={{ width: 676, height: 543 }}
       />
     </div>
   );

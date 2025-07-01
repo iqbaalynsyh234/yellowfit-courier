@@ -45,7 +45,7 @@ export default function DashboardPage() {
       <div
         className="absolute"
         style={{
-          width: 375,
+          width: 470,
           height: 812,
           top: "50%",
           left: "50%",
@@ -65,7 +65,7 @@ export default function DashboardPage() {
         />
       </div>
       <HeaderDashboardPage />
-      <div className="w-full max-w-[375px] flex-1 px-4 pt-4 relative z-10 mx-auto flex flex-col">
+      <div className="w-full max-w-[470px] flex-1 px-4 pt-4 relative z-10 mx-auto flex flex-col">
         <>
           <div className="text-white font-bold text-lg mb-2 mt-2">Senin, 12 Februari 2024</div>
           <div className="flex bg-gray-900 rounded-full py-2 px-2 mb-4 justify-between">
