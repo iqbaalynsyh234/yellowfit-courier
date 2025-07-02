@@ -19,8 +19,8 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.8 }}
         style={{
-          width: 375,
-          height: 812,
+          width: 475,
+          height: 919,
           position: "fixed",
           top: "50%",
           left: "50%",

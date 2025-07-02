@@ -1,8 +1,9 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export const BASE_URL = process.env.YELLOWFIT_COURIER_API_DEV;
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 export const MOCK_BASE_URL = process.env.NEXT_PUBLIC_MOCK_BASE_URL;
 export const NEXT_PUBLIC_PROD_URL = process.env.NEXT_PUBLIC_PROD_URL || '';
+export const EXTERNAL_API_URL = process.env.NEXT_PUBLIC_EXTERNAL_API_URL || 'https://api.yellowfitkitchen.com/api';
 
 // Create axios instance
 const axiosInstance = axios.create({
@@ -12,7 +13,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Request interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -26,7 +26,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Response interceptor
 axiosInstance.interceptors.response.use(
   (response: AxiosResponse) => {
     return response.data; 
@@ -54,5 +53,103 @@ export const apiCall = async <T>(
     throw error;
   }
 };
+
+// Function to get CSRF token - try different endpoints
+const getCsrfToken = async (): Promise<string> => {
+  const possibleEndpoints = [
+    '/csrf-cookie',
+    '/sanctum/csrf-cookie', 
+    '/api/csrf-cookie',
+    '/csrf-token'
+  ];
+
+  for (const endpoint of possibleEndpoints) {
+    try {
+      const response = await fetch(`https://api.yellowfitkitchen.com${endpoint}`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
+      
+      if (response.ok) {
+        // Extract CSRF token from cookies
+        if (typeof document !== 'undefined') {
+          const cookies = document.cookie.split(';');
+          const csrfCookie = cookies.find(cookie => 
+            cookie.trim().startsWith('XSRF-TOKEN=') || 
+            cookie.trim().startsWith('csrf_token=') ||
+            cookie.trim().startsWith('_token=')
+          );
+          
+          if (csrfCookie) {
+            return decodeURIComponent(csrfCookie.split('=')[1]);
+          }
+        }
+        
+        const setCookieHeader = response.headers.get('set-cookie');
+        if (setCookieHeader) {
+          const csrfMatch = setCookieHeader.match(/(XSRF-TOKEN|csrf_token|_token)=([^;]+)/);
+          if (csrfMatch) {
+            return decodeURIComponent(csrfMatch[2]);
+          }
+        }
+      }
+    } catch (error) {
+      console.log(`Failed to get CSRF from ${endpoint}:`, error);
+      continue;
+    }
+  }
+  
+  throw new Error('CSRF token not found from any endpoint');
+};
+
+export const axiosExternalInstance = axios.create({
+  baseURL: EXTERNAL_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  withCredentials: true,
+  timeout: 10000,
+});
+
+axiosExternalInstance.interceptors.request.use(
+  async (config) => {
+    if (['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase() || '')) {
+      try {
+        const csrfToken = await getCsrfToken();
+        config.headers['X-CSRF-TOKEN'] = csrfToken;
+        config.headers['X-Requested-With'] = 'XMLHttpRequest';
+      } catch (error) {
+        console.error('Failed to get CSRF token:', error);
+       throw error;
+      }
+    }
+    
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+axiosExternalInstance.interceptors.response.use(
+  (response: AxiosResponse) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default axiosInstance;

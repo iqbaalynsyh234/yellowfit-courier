@@ -1,56 +1,93 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import BottomNavPage from "@/components/bottom-nav";
 import HeaderPagePickup from "../../../../../features/pickup/components/HeaderPickupPage";
 import DashboardTanggal from "../../../../../features/dashboard/components/DashboardTanggal";
 import { useRouter } from "next/navigation";
+import { getPickupListApi } from "@/lib/yellowfit-courier/api/pickup";
+import { PickupItem } from "@/interfaces/Pickup";
+import { format } from 'date-fns';
+import { usePickupList } from '@/hooks/usePickupList';
 
-const pickupData = [
-  {
-    type: "LUNCH",
-    code: "GRK1L120240207091800",
-    location: "YFK JABODEBEK",
-  },
-  {
-    type: "DINNER",
-    code: "GRK1L120240207091800",
-    location: "YFK JABODEBEK",
-  },
-];
 export default function PickupPage() {
   const router = useRouter();
+  const [tanggal, setTanggal] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') || '' : '';
+  const { pickupData, loading, error } = usePickupList(tanggal, token);
+
+  const getSessionType = (sesi: string) => {
+    switch (sesi) {
+      case 'L':
+        return 'LUNCH';
+      case 'D':
+        return 'DINNER';
+      default:
+        return sesi;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black bg-opacity-80 relative pb-24 flex justify-center items-center overflow-hidden">
+        <div className="text-white text-lg">Loading...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black bg-opacity-80 relative pb-24 flex justify-center items-center overflow-hidden">
+        <div className="text-red-500 text-lg">{error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-black bg-opacity-80 relative pb-24 flex justify-center overflow-hidden">
-      {/* Main Content */}
       <div className="w-full max-w-[475px] mx-auto relative z-10 overflow-hidden">
-        {/* Background Image hanya di area konten */}
         <img
           src="/assets/yfk/image/bg-img.png"
           alt="Background"
           className="absolute inset-0 w-full h-full object-cover z-0"
           style={{ pointerEvents: "none" }}
         />
-        {/* Konten di atas gambar */}
         <div className="relative z-10">
           <HeaderPagePickup />
           <DashboardTanggal />
           <div className="flex flex-col gap-4 px-4">
-            {pickupData.map((item, idx) => (
-              <div
-                key={idx}
-                className="bg-[#232323] rounded-2xl p-4 flex flex-col gap-2 shadow relative cursor-pointer"
-                onClick={() => router.push("/pages/pickup/detail")}
-              >
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg width="24" height="35" fill="none" viewBox="0 0 24 24"><path stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6"/></svg>
-                </span>
-                <span className="inline-block bg-[#FFD823] text-black text-xs font-bold rounded-full px-3 py-1 mb-1 w-fit">
-                  {item.type}
-                </span>
-                <div className="text-white font-bold text-lg tracking-wide">{item.code}</div>
-                <div className="text-gray-300 text-sm">{item.location}</div>
+            {pickupData.length === 0 ? (
+              <div className="text-white text-center py-8">
+                No pickup data available
               </div>
-            ))}
+            ) : (
+              pickupData.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-[#232323] rounded-2xl p-4 flex flex-col gap-2 shadow relative cursor-pointer"
+                  onClick={() => router.push(`/pages/pickup/detail?id=${item.id}`)}
+                >
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <svg width="24" height="35" fill="none" viewBox="0 0 24 24">
+                      <path stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 6l6 6-6 6"/>
+                    </svg>
+                  </span>
+                  <span className="inline-block bg-[#FFD823] text-black text-xs font-bold rounded-full px-3 py-1 mb-1 w-fit">
+                    {getSessionType(item.sesi)}
+                  </span>
+                  <div className="text-white font-bold text-lg tracking-wide">
+                    {item.generate_code}
+                  </div>
+                  <div className="text-gray-300 text-sm">
+                    {item.namacabang}
+                  </div>
+                  <div className="text-gray-400 text-xs">
+                    {item.tanggal}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

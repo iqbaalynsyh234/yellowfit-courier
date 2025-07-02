@@ -1,4 +1,4 @@
-export default function ErrorLogin() {
+export default function ErrorLogin({ message, onBack }: { message: string, onBack: () => void }) {
   return (
     <div
       style={{
@@ -19,9 +19,12 @@ export default function ErrorLogin() {
       </div>
       <div className="font-bold text-xl text-black mb-2 text-center">Nomor Tidak Terdaftar di Sistem</div>
       <div className="text-center text-black/80 mb-6 text-sm">
-        Nomor yang anda masukkan tidak terdaftar disistem, segera hubungi admin.
+        {message}
       </div>
-      <button className="w-full bg-[#FFD823] hover:bg-yellow-400 text-black font-semibold rounded-xl py-3 text-base transition">
+      <button
+        className="w-full bg-[#FFD823] hover:bg-yellow-400 text-black font-semibold rounded-xl py-3 text-base transition"
+        onClick={onBack}
+      >
         Kembali
       </button>
     </div>

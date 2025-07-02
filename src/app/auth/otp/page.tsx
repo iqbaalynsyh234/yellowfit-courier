@@ -4,6 +4,7 @@ import KeyboardPage from "@/components/Keyboard";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useOtpVerification } from "@/hooks/useOtpVerification";
 
 export default function OtpPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -12,6 +13,9 @@ export default function OtpPage() {
   const phoneNumber = "082271153305";
   const router = useRouter();
   const hiddenInputRef = useRef<HTMLInputElement>(null);
+  const { verifyOtp, loading, error } = useOtpVerification();
+  const [counter, setCounter] = useState(59);
+  const [canResend, setCanResend] = useState(false);
 
   const handleKeyboardInput = (key: string | number) => {
     if (key === "⌫") {
@@ -61,8 +65,27 @@ export default function OtpPage() {
     }
   };
 
+  const handleVerification = async () => {
+    const otpString = otp.join("");
+    if (otpString.length === 6) {
+      const result = await verifyOtp(phoneNumber, otpString);
+      if (result && result.status === "success") {
+        // Simpan token dan user ke localStorage
+        if (result.token) {
+          localStorage.setItem('token', result.token);
+        }
+        if (result.user) {
+          localStorage.setItem('user', JSON.stringify(result.user));
+        }
+        router.push("/pages/dashboard");
+      } else {
+        // Tampilkan error jika OTP salah
+        // (error state sudah di-handle oleh hook)
+      }
+    }
+  };
+
   useEffect(() => {
-    // Auto-focus first empty field
     const firstEmptyIndex = otp.findIndex(digit => digit === "");
     if (firstEmptyIndex !== -1) {
       setActiveIndex(firstEmptyIndex);
@@ -70,6 +93,23 @@ export default function OtpPage() {
       setActiveIndex(5);
     }
   }, [otp]);
+
+  // Countdown effect
+  useEffect(() => {
+    if (counter > 0) {
+      const timer = setTimeout(() => setCounter(counter - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setCanResend(true);
+    }
+  }, [counter]);
+
+  // Fungsi untuk resend OTP
+  const handleResend = async () => {
+    if (!canResend) return;
+    setCanResend(false);
+    setCounter(59);
+  };
 
   return (
     <div className="min-h-screen w-full bg-black relative flex items-center justify-center overflow-hidden">
@@ -87,8 +127,8 @@ export default function OtpPage() {
       <div
         className="absolute"
         style={{
-          width: 375,
-          height: 812,
+          width: 475,
+          height: 917,
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
@@ -108,7 +148,7 @@ export default function OtpPage() {
       <div
         className="absolute flex flex-col justify-between"
         style={{
-          width: 375,
+          width: 475,
           height: 812,
           top: "50%",
           left: "50%",
@@ -117,7 +157,6 @@ export default function OtpPage() {
         }}
       >
         <div className="flex flex-col flex-1 justify-center px-6 pt-10">
-          {/* Logo di atas teks Masukkan OTP, di tengah */}
           <div className="flex flex-col items-center w-full mb-6">
             <div className="flex items-center rounded-lg px-2 py-2 w-fit shadow z-20">
               <Image
@@ -133,8 +172,11 @@ export default function OtpPage() {
           <h1 className="text-white text-2xl font-bold mb-2 text-center">Masukkan OTP</h1>
           <p className="text-gray-300 text-sm text-center mb-1">Kami telah mengirimkan nomor telepon ke nomor whatsapp berikut</p>
           <p className="text-white text-center font-semibold mb-4">{phoneNumber}</p>
-          
-          {/* OTP Input */}
+          {error && (
+            <div className="text-red-400 text-sm text-center mb-4">
+              {error}
+            </div>
+          )}
           <div className="flex justify-center gap-3 mb-3">
             {otp.map((digit, idx) => (
               <div 
@@ -145,7 +187,6 @@ export default function OtpPage() {
                 onClick={() => handleOtpClick(idx)}
               >
                 {digit || ""}
-                {/* Blinking cursor */}
                 {activeIndex === idx && !digit && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-0.5 h-6 bg-yellow-400 animate-pulse"></div>
@@ -155,15 +196,31 @@ export default function OtpPage() {
             ))}
           </div>
           
-          <div className="text-center text-xs text-gray-300 mb-4">
-            Tidak menerima kode? <span className="text-white font-semibold cursor-pointer hover:underline">Kirim Ulang</span>
+          <div className="text-center text-xs text-gray-300 mb-4 flex items-center justify-center gap-2">
+            Tidak menerima kode?
+            <span
+              className={`text-white font-semibold cursor-pointer hover:underline ${!canResend && "opacity-50 pointer-events-none"}`}
+              onClick={handleResend}
+            >
+              Kirim Ulang
+            </span>
+            <span className="countdown">
+              <span
+                style={{ "--value": counter } as React.CSSProperties}
+                aria-live="polite"
+                aria-label={String(counter)}
+              >
+                {counter}
+              </span>
+            </span>
           </div>
           
           <button
-            className="w-full bg-yellow-400 text-black font-semibold py-3 rounded-lg hover:bg-yellow-500 transition-all duration-200 text-base shadow-lg mb-6"
-            onClick={() => router.push("/pages/dashboard")}
+            className="w-full bg-yellow-400 text-black font-semibold py-3 rounded-lg hover:bg-yellow-500 transition-all duration-200 text-base shadow-lg mb-6 disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={handleVerification}
+            disabled={loading || otp.join("").length !== 6}
           >
-            Verifikasi
+            {loading ? "Memverifikasi..." : "Verifikasi"}
           </button>
           
           {showKeyboard && <KeyboardPage onKeyPress={handleKeyboardInput} />}

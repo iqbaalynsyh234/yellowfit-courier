@@ -1,17 +1,16 @@
 export interface SigninRequest {
-  email: string;
-  password: string;
+  phone: string;  
 }
-
 export interface SigninResponse {
   success: boolean;
   message: string;
   data?: {
-    token: string;
-    user: {
+    token?: string;
+    otp_token?: string;
+    user?: {
       id: string;
       name: string;
-      email: string;
+      phone: string;  
     };
   };
 }
