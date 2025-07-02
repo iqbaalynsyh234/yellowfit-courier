@@ -55,7 +55,6 @@ export default function OtpPage() {
       handleKeyboardInput(lastChar);
     }
     
-    // Clear the hidden input
     e.target.value = "";
   };
 
@@ -70,7 +69,6 @@ export default function OtpPage() {
     if (otpString.length === 6) {
       const result = await verifyOtp(phoneNumber, otpString);
       if (result && result.status === "success") {
-        // Simpan token dan user ke localStorage
         if (result.token) {
           localStorage.setItem('token', result.token);
         }
@@ -79,8 +77,7 @@ export default function OtpPage() {
         }
         router.push("/pages/dashboard");
       } else {
-        // Tampilkan error jika OTP salah
-        // (error state sudah di-handle oleh hook)
+        console.error("Verification failed");
       }
     }
   };
@@ -94,7 +91,6 @@ export default function OtpPage() {
     }
   }, [otp]);
 
-  // Countdown effect
   useEffect(() => {
     if (counter > 0) {
       const timer = setTimeout(() => setCounter(counter - 1), 1000);
