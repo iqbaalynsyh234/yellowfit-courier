@@ -1,6 +1,6 @@
 import { apiCall, axiosExternalInstance } from '../BaseUrl';
 import { API_ENDPOINTS } from '../ApiEndpoints';
-import { OrderSummaryRequest, OrderSummaryResponse } from '../../../../interfaces/OrderSummary';
+import type { Root as OrderDetailResponse, Daum as OrderDetailItem, OrderSummaryResponse } from '@/interfaces/Dashboard';
 
 export interface DashboardStats {
   totalPickups: number;
@@ -29,6 +29,32 @@ export const getDashboardDataApi = async (): Promise<DashboardResponse> => {
   });
 };
 
+export const getOrderDetailApi = async (tanggal?: string): Promise<OrderDetailResponse> => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    
+    const query = tanggal ? `?tanggal=${encodeURIComponent(tanggal)}` : '';
+    const response = await axiosExternalInstance.get<OrderDetailResponse>(
+      `${API_ENDPOINTS.V2_ORDER_DETAIL}${query}`,
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    console.log('Order detail response:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Order detail error:', error);
+    throw new Error(error.response?.data?.message || error.message || 'Failed to fetch order detail');
+  }
+};
+
 export const getOrderSummaryApi = async (tanggal: string): Promise<OrderSummaryResponse> => {
   try {
     const token = localStorage.getItem('token');
@@ -53,4 +79,34 @@ export const getOrderSummaryApi = async (tanggal: string): Promise<OrderSummaryR
     console.error('Order summary error:', error);
     throw new Error(error.message || 'Failed to fetch order summary');
   }
-}; 
+};
+
+export const getOrderStatus = (sts_kirim: string, kurirdmd?: string | null) => {
+  if (sts_kirim === '1') {
+    return {
+      status: 'Selesai',
+      bgColor: 'bg-green-200',
+      textColor: 'text-green-700'
+    };
+  } else if (sts_kirim === '0' && kurirdmd != null) {
+    return {
+      status: 'Dalam Pengantaran',
+      bgColor: 'bg-orange-200',
+      textColor: 'text-orange-700'
+    };
+  } else if (sts_kirim === '0' && kurirdmd == null) {
+    return {
+      status: 'Belum Pickup',
+      bgColor: 'bg-gray-200',
+      textColor: 'text-gray-700'
+    };
+  } else {
+    return {
+      status: 'Status Tidak Diketahui',
+      bgColor: 'bg-gray-400',
+      textColor: 'text-gray-800'
+    };
+  }
+};
+
+export type { Daum as OrderDetailItem } from '@/interfaces/Dashboard';
