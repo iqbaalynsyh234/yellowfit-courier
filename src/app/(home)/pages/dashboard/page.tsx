@@ -9,7 +9,7 @@ import DetailPengiriman from "@/components/DetailPengiriman";
 import HeaderDashboardPage from "../../../../../features/dashboard/components/HeaderDashbord";
 import HeaderSummaryDashboard from "../../../../../features/dashboard/components/HeaderSummaryDashboard";
 import { useOrderSummary } from "@/hooks/useOrderSummary";
-import { getOrderDetailApi, getOrderStatus, OrderDetailItem } from "@/lib/yellowfit-courier/api/dashboard";
+import { getOrderStatus, OrderDetailItem } from "@/lib/yellowfit-courier/api/dashboard";
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
