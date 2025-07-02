@@ -4,7 +4,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Forward the request to the external API
     const response = await fetch('https://api.yellowfitkitchen.com/api/mobile/login', {
       method: 'POST',
       headers: {

@@ -19,7 +19,7 @@ export default function SuccesLoginPage() {
             onClick={() => {
               window.location.href = "/pages/dashboard";
             }}
-          >
+             >
             Lanjutkan
           </button>
         </div>

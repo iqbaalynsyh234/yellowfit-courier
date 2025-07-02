@@ -6,4 +6,5 @@ export const API_ENDPOINTS = {
   PROFILE: '/profile',
   V2_ORDER: '/v2/order',
   LOGIN: '/mobile/login',
+  ORDER_SUMMARY: '/order/summary',
 } as const;

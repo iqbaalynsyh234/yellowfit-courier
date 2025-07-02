@@ -1,5 +1,3 @@
-import { API_ENDPOINTS } from '../ApiEndpoints';
-
 export const signinApi = async (credentials: { phone: string }) => {
   try {
     const response = await fetch('/api/login', {

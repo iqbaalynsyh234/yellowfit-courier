@@ -89,7 +89,6 @@ export default function DetailPengiriman({
           Hubungi Customer
         </button>
       </div>
-      {/* Background image di bawah section detail pengiriman */}
       <img
         src="/assets/yfk/image/bg-img.png"
         alt="Background"

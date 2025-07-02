@@ -7,6 +7,10 @@ import AllertPage from "@/components/Allert";
 import CameraModalPages from "@/components/CameraModal";
 import DetailPengiriman from "@/components/DetailPengiriman";
 import HeaderDashboardPage from "../../../../../features/dashboard/components/HeaderDashbord";
+import HeaderSummaryDashboard from "../../../../../features/dashboard/components/HeaderSummaryDashboard";
+import { useOrderSummary } from "@/hooks/useOrderSummary";
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 export default function DashboardPage() {
   const [orders, setOrders] = useState([
@@ -16,6 +20,31 @@ export default function DashboardPage() {
   const [showModal, setShowModal] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [detailData, setDetailData] = useState<any>(null);
+
+  // Get current date in Indonesian format
+  const currentDate = format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id });
+  
+  // Fetch order summary data
+  const { data: orderSummary, loading: summaryLoading, error: summaryError } = useOrderSummary();
+
+  // Show loading state
+  if (summaryLoading) {
+    return (
+      <div className="min-h-screen w-full bg-black relative pb-20 overflow-hidden flex items-center justify-center">
+        <div className="text-white text-lg">Loading dashboard data...</div>
+      </div>
+    );
+  }
+
+  if (summaryError) {
+    return (
+      <div className="min-h-screen w-full bg-black relative pb-20 overflow-hidden flex items-center justify-center">
+        <div className="text-red-500 text-lg text-center px-4">
+          Error loading dashboard: {summaryError}
+        </div>
+      </div>
+    );
+  }
 
   const handleBerangkat = (id: number) => {
     setOrders((prev) => prev.map((order) => (order.id === id ? { ...order, berangkat: true } : order)));
@@ -67,21 +96,12 @@ export default function DashboardPage() {
       <HeaderDashboardPage />
       <div className="w-full max-w-[470px] flex-1 px-4 pt-4 relative z-10 mx-auto flex flex-col">
         <>
-          <div className="text-white font-bold text-lg mb-2 mt-2">Senin, 12 Februari 2024</div>
-          <div className="flex bg-gray-900 rounded-full py-2 px-2 mb-4 justify-between">
-            <div className="flex-1 text-center text-white text-xs">
-              <div className="font-bold text-base">30</div>
-              Tugas
-            </div>
-            <div className="flex-1 text-center text-yellow-400 text-xs">
-              <div className="font-bold text-base">25</div>
-              Pickup
-            </div>
-            <div className="flex-1 text-center text-white text-xs">
-              <div className="font-bold text-base">0</div>
-              Selesai
-            </div>
-          </div>
+          <div className="text-white font-bold text-lg mb-2 mt-2">{currentDate}</div>
+          <HeaderSummaryDashboard 
+            tugas={orderSummary?.task?.toString() || "0"}
+            pickup={orderSummary?.pickup?.toString() || "0"}
+            selesai={orderSummary?.delivered?.toString() || "0"}
+          />
           {orders.map((order, idx) => (
             <div key={order.id} className="bg-gray-800 rounded-xl p-4 mb-3 shadow">
               <div className="flex items-center justify-between mb-1">

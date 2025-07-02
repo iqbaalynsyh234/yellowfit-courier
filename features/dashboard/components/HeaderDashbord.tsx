@@ -9,7 +9,6 @@ export default function HeaderDashboardPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const userData = localStorage.getItem("user");
-      console.log(userData);
       if (userData) {
         const parsed = JSON.parse(userData);
         setUser({ name: parsed.name, email: parsed.email });
