@@ -29,11 +29,16 @@ export interface PickupPaginationData {
   total: number;
 }
 
+export interface PickupApiData {
+  current_page: number;
+  data: PickupItem[];
+}
+
 export interface PickupApiResponse {
   code: number;
   status: string;
   count: number;
-  data: PickupPaginationData;
+  data: PickupApiData;
 }
 
 export interface PickupRequest {

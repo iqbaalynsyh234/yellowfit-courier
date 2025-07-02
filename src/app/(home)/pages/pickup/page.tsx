@@ -5,14 +5,12 @@ import BottomNavPage from "@/components/bottom-nav";
 import HeaderPagePickup from "../../../../../features/pickup/components/HeaderPickupPage";
 import DashboardTanggal from "../../../../../features/dashboard/components/DashboardTanggal";
 import { useRouter } from "next/navigation";
-import { getPickupListApi } from "@/lib/yellowfit-courier/api/pickup";
-import { PickupItem } from "@/interfaces/Pickup";
 import { format } from 'date-fns';
 import { usePickupList } from '@/hooks/usePickupList';
 
 export default function PickupPage() {
   const router = useRouter();
-  const [tanggal, setTanggal] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
+  const [tanggal] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') || '' : '';
   const { pickupData, loading, error } = usePickupList(tanggal, token);
@@ -57,7 +55,7 @@ export default function PickupPage() {
           <HeaderPagePickup />
           <DashboardTanggal />
           <div className="flex flex-col gap-4 px-4">
-            {pickupData.length === 0 ? (
+            {Array.isArray(pickupData) && pickupData.length === 0 ? (
               <div className="text-white text-center py-8">
                 No pickup data available
               </div>

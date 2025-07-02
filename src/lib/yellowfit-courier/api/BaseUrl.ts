@@ -16,9 +16,11 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;  
   },
@@ -55,7 +57,6 @@ export const apiCall = async <T>(
   }
 };
 
-// Function to get CSRF token - try different endpoints
 const getCsrfToken = async (): Promise<string> => {
   const possibleEndpoints = [
     '/csrf-cookie',
@@ -118,22 +119,23 @@ export const axiosExternalInstance = axios.create({
 
 axiosExternalInstance.interceptors.request.use(
   async (config) => {
-    if (['post', 'put', 'delete', 'patch'].includes(config.method?.toLowerCase() || '')) {
+    if (["post", "put", "delete", "patch"].includes(config.method?.toLowerCase() || "")) {
       try {
         const csrfToken = await getCsrfToken();
-        config.headers['X-CSRF-TOKEN'] = csrfToken;
-        config.headers['X-Requested-With'] = 'XMLHttpRequest';
+        config.headers["X-CSRF-TOKEN"] = csrfToken;
+        config.headers["X-Requested-With"] = "XMLHttpRequest";
       } catch (error) {
-        console.error('Failed to get CSRF token:', error);
-       throw error;
+        console.error("Failed to get CSRF token:", error);
+        throw error;
       }
     }
-    
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Only access localStorage in the browser
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
-    
     return config;
   },
   (error) => {

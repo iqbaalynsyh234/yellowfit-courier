@@ -59,7 +59,7 @@ export default function DashboardPage() {
   if (summaryLoading || orderLoading) {
     return (
       <div className="min-h-screen w-full bg-black relative pb-20 overflow-hidden flex items-center justify-center">
-        <div className="text-white text-lg">Loading dashboard data...</div>
+        <div className="text-white text-lg">Please Wait...</div>
       </div>
     );
   }
@@ -132,8 +132,6 @@ export default function DashboardPage() {
             pickup={orderSummary?.pickup?.toString() || "0"}
             selesai={orderSummary?.delivered?.toString() || "0"}
           />
-          
-          {/* Render order details from API */}
           {orderDetails.map((orderDetail, idx) => {
             const statusInfo = getOrderStatus(
               orderDetail.sts_kirim,

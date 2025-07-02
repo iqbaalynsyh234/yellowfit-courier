@@ -98,7 +98,7 @@ export const getOrderStatus = (sts_kirim: string, kurirdmd?: string | null) => {
     return {
       status: 'Belum Pickup',
       bgColor: 'bg-gray-200',
-      textColor: 'text-gray-700'
+      textColor: 'text-gray-600'
     };
   } else {
     return {

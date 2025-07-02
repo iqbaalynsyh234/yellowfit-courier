@@ -11,23 +11,24 @@ export interface PickupDetailResponse {
     status: string;
     pickupTime: string;
     deliveryAddress: string;
-    customerName: string;
+  customerName: string;
     customerPhone: string;
   };
 }
 
 export const getPickupListApi = async (
-  params?: PickupRequest,
-  token?: string
+  tanggal: string,
+  token: string
 ): Promise<PickupApiResponse> => {
-  const tanggal = params?.tanggal || '';
   const query = tanggal ? `?tanggal=${encodeURIComponent(tanggal)}` : '';
-  return axiosExternalInstance.get<PickupApiResponse>(
-    `${API_ENDPOINTS.V2_ORDER}${query}`,
-    {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    }
-  ).then(res => res.data);
+  const response = await fetch(`/api/pickup-list${query}`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  return await response.json();
 };
 
 export const getPickupDetailApi = async (id: string): Promise<PickupDetailResponse> => {
