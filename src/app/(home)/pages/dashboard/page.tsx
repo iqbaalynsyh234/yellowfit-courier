@@ -27,8 +27,6 @@ export default function DashboardPage() {
   const currentDate = format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id });
   const { data: orderSummary, loading: summaryLoading, error: summaryError } = useOrderSummary();
   const [expandedOrderIds, setExpandedOrderIds] = useState<number[]>([]);
-
-  // Fetch order details
   useEffect(() => {
     const fetchOrderDetails = async () => {
       setOrderLoading(true);
