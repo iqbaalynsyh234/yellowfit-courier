@@ -14,20 +14,15 @@ import { id } from 'date-fns/locale';
 
 export default function DashboardPage() {
   const [orders, setOrders] = useState([
-    { id: 1, berangkat: false, showActions: false },
+    { id: 1, berangkat: true, showActions: true },
     { id: 2, berangkat: false, showActions: false },
   ]);
   const [showModal, setShowModal] = useState(false);
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [detailData, setDetailData] = useState<any>(null);
-
-  // Get current date in Indonesian format
   const currentDate = format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id });
-  
-  // Fetch order summary data
   const { data: orderSummary, loading: summaryLoading, error: summaryError } = useOrderSummary();
 
-  // Show loading state
   if (summaryLoading) {
     return (
       <div className="min-h-screen w-full bg-black relative pb-20 overflow-hidden flex items-center justify-center">

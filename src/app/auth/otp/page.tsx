@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useOtpVerification } from "@/hooks/useOtpVerification";
+import OtpErrorAlert from "@/components/allert/OtpErrorAlert";
 
 export default function OtpPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -16,6 +17,7 @@ export default function OtpPage() {
   const { verifyOtp, loading, error } = useOtpVerification();
   const [counter, setCounter] = useState(59);
   const [canResend, setCanResend] = useState(false);
+  const [showOtpError, setShowOtpError] = useState(false);
 
   const handleKeyboardInput = (key: string | number) => {
     if (key === "⌫") {
@@ -77,7 +79,7 @@ export default function OtpPage() {
         }
         router.push("/pages/dashboard");
       } else {
-        console.error("Verification failed");
+        setShowOtpError(true);
       }
     }
   };
@@ -222,6 +224,9 @@ export default function OtpPage() {
           {showKeyboard && <KeyboardPage onKeyPress={handleKeyboardInput} />}
         </div>
       </div>
+      {showOtpError && (
+        <OtpErrorAlert onClose={() => setShowOtpError(false)} />
+      )}
     </div>
   );
 }

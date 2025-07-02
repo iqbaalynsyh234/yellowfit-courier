@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { API_ENDPOINTS } from './ApiEndpoints';
 
 export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 export const MOCK_BASE_URL = process.env.NEXT_PUBLIC_MOCK_BASE_URL;
@@ -151,5 +152,22 @@ axiosExternalInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const logoutApi = async () => {
+  const token = localStorage.getItem('token');
+  if (!token) throw new Error('No authentication token found');
+  const response = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API_URL || 'https://api.yellowfitkitchen.com/api'}${API_ENDPOINTS.LOGOUT}`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.message || 'Logout failed');
+  }
+  return true;
+};
 
 export default axiosInstance;
