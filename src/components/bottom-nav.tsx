@@ -1,5 +1,6 @@
 "use client";
 import { usePathname, useRouter } from "next/navigation";
+import { MdAssignment } from "react-icons/md";
 
 export default function BottomNavPage() {
   const pathname = usePathname();
@@ -22,6 +23,18 @@ export default function BottomNavPage() {
           <span className={`text-lg group-hover:text-yellow-400 ${
             pathname === "/pages/dashboard" ? "text-yellow-400 font-bold" : ""
           }`}>Home</span>
+        </button>
+
+        <button
+          className={`flex flex-col items-center flex-1 group ${
+            pathname === "/pages/tugas" ? "text-yellow-400" : "text-white"
+          }`}
+          onClick={() => router.push("/pages/tugas")}
+        >
+          <MdAssignment className="w-6 h-6 mb-1 group-hover:text-yellow-400" />
+          <span className={`text-lg group-hover:text-yellow-400 ${
+            pathname === "/pages/tugas" ? "text-yellow-400 font-bold" : ""
+          }`}>Tugas</span>
         </button>
 
         {/* Pickup */}

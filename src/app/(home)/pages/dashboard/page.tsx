@@ -27,6 +27,11 @@ export default function DashboardPage() {
   const currentDate = format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id });
   const { data: orderSummary, loading: summaryLoading, error: summaryError } = useOrderSummary();
   const [expandedOrderIds, setExpandedOrderIds] = useState<number[]>([]);
+  const dummyOrders = [
+    { id: 1, berangkat: true, showActions: true },
+    { id: 2, berangkat: false, showActions: false },
+  ];
+
   useEffect(() => {
     const fetchOrderDetails = async () => {
       setOrderLoading(true);
@@ -75,7 +80,6 @@ export default function DashboardPage() {
   }
 
   const handleBerangkat = (id: number) => {
-    setOrders((prev) => prev.map((order) => (order.id === id ? { ...order, berangkat: true } : order)));
     setShowModal(true);
   };
 
@@ -132,104 +136,68 @@ export default function DashboardPage() {
             pickup={orderSummary?.pickup?.toString() || "0"}
             selesai={orderSummary?.delivered?.toString() || "0"}
           />
-          {orderDetails.map((orderDetail, idx) => {
-            const statusInfo = getOrderStatus(
-              orderDetail.sts_kirim,
-              orderDetail.kurirdmd != null ? String(orderDetail.kurirdmd) : null
-            );
-            const order = orders.find(o => o.id === idx + 1) || { id: idx + 1, berangkat: false, showActions: false };
-            const customer = orderDetail.datacustomer;
-            const customerName = customer ? `${customer.fname} ${customer.lname}` : '-';
-            const customerAddress = customer ? customer.address : '-';
-            const customerPhone = customer ? customer.phone : '';
-            const isExpanded = expandedOrderIds.includes(orderDetail.id);
-            
-            return (
-              <div key={orderDetail.id} className="bg-gray-800 rounded-xl p-4 mb-3 shadow">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-gray-400 font-mono">#{orderDetail.barcode}</span>
-                  <span className={`${statusInfo.bgColor} ${statusInfo.textColor} text-xs font-semibold px-3 py-1 rounded-full`}>
-                    {statusInfo.status}
-                  </span>
-                  <button 
-                    className="ml-2" 
-                    onClick={() => toggleShowActions(orderDetail.id)} 
-                    aria-label={isExpanded ? "Sembunyikan aksi" : "Tampilkan aksi"}
-                  >
-                    {isExpanded ? (
-                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                        <path d="M6 15l6-6 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    ) : (
-                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                        <path d="M6 9l6 6 6-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-                <div className="font-bold text-white text-sm mb-1">{customerName}</div>
-                <div className="text-xs text-gray-300 mb-1">{customerAddress}</div>
-                {isExpanded && (
-                  <>
-                    <div className="flex gap-2 mt-3">
-                      <a
-                        href={`https://wa.me/${customerPhone}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 bg-green-500 text-white font-semibold py-2 rounded-xl text-sm text-center flex items-center justify-center"
-                      >
-                        Hubungi Customer
-                      </a>
-                      <button className="flex-1 bg-[#FFD823] text-black font-semibold py-2 rounded-xl text-sm" onClick={() => setShowCameraModal(true)}>
-                        Foto Pengantaran
-                      </button>
-                    </div>
-                    <button className="w-full bg-[#FFD823] text-black font-bold py-4 rounded-xl text-center text-base shadow-lg mt-4 mb-2" onClick={() => handleBerangkat(order.id)}>
-                      Berangkat Sekarang 
-                    </button>
-                  </>
-                )}
-              </div>
-            );
-          })}
-
-          {/* Fallback to static orders if no API data */}
-          {orderDetails.length === 0 && orders.map((order, idx) => (
-            <div key={order.id} className="bg-gray-800 rounded-xl p-4 mb-3 shadow">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-400 font-mono">#1668091</span>
-                <span className="bg-orange-200 text-orange-700 text-xs font-semibold px-3 py-1 rounded-full">Dalam Pengantaran</span>
-                <button className="ml-2" onClick={() => toggleShowActions(order.id)} aria-label={order.showActions ? "Sembunyikan aksi" : "Tampilkan aksi"}>
-                  {order.showActions ? (
-                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                      <path d="M6 15l6-6 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  ) : (
-                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                      <path d="M6 9l6 6 6-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-              <div className="font-bold text-white text-sm mb-1">Angelica Theresia</div>
-              <div className="text-xs text-gray-300 mb-1">Pademangan timur 4 gang 32 komplek duta kemayoran blok</div>
-              {order.showActions && (
-                <>
-                  <div className="flex gap-2 mt-3">
-                    <button className="flex-1 bg-green-500 text-white font-semibold py-2 rounded-xl text-sm">Hubungi Customer</button>
-                    <button className="flex-1 bg-[#FFD823] text-black font-semibold py-2 rounded-xl text-sm" onClick={() => setShowCameraModal(true)}>
-                      Foto Pengantaran
+          {orderDetails.length === 0 ? (
+            <div className="text-gray-400 text-center mt-8">Tidak ada data pengantaran hari ini.</div>
+          ) : (
+            orderDetails.map((orderDetail) => {
+              const statusInfo = getOrderStatus(
+                orderDetail.sts_kirim,
+                orderDetail.kurirdmd != null ? String(orderDetail.kurirdmd) : null
+              );
+              const customer = orderDetail.datacustomer;
+              const customerName = customer ? `${customer.fname} ${customer.lname}` : '-';
+              const customerAddress = customer ? customer.address : '-';
+              const customerPhone = customer ? customer.phone : '';
+              const isExpanded = expandedOrderIds.includes(orderDetail.id);
+              return (
+                <div key={orderDetail.id} className="bg-gray-800 rounded-xl p-4 mb-3 shadow">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-400 font-mono">#{orderDetail.barcode}</span>
+                    <span className={`${statusInfo.bgColor} ${statusInfo.textColor} text-xs font-semibold px-3 py-1 rounded-full`}>
+                      {statusInfo.status}
+                    </span>
+                    <button 
+                      className="ml-2" 
+                      onClick={() => toggleShowActions(orderDetail.id)} 
+                      aria-label={isExpanded ? "Sembunyikan aksi" : "Tampilkan aksi"}
+                    >
+                      {isExpanded ? (
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                          <path d="M6 15l6-6 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      ) : (
+                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                          <path d="M6 9l6 6 6-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
                     </button>
                   </div>
-                  {!order.berangkat && idx === 0 && (
-                    <button className="w-full bg-[#FFD823] text-black font-bold py-4 rounded-xl text-center text-base shadow-lg mt-4 mb-2" onClick={() => handleBerangkat(order.id)}>
-                      Berangkat Sekarang 
-                    </button>
+                  <div className="font-bold text-white text-sm mb-1">{customerName}</div>
+                  <div className="text-xs text-gray-300 mb-1">{customerAddress}</div>
+                  {isExpanded && (
+                    <>
+                      <div className="flex gap-2 mt-3">
+                        <a
+                          href={`https://wa.me/${customerPhone}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 bg-green-500 text-white font-semibold py-2 rounded-xl text-sm text-center flex items-center justify-center"
+                        >
+                          Hubungi Customer
+                        </a>
+                        <button className="flex-1 bg-[#FFD823] text-black font-semibold py-2 rounded-xl text-sm" onClick={() => setShowCameraModal(true)}>
+                          Foto Pengantaran
+                        </button>
+                      </div>
+                      <button className="w-full bg-[#FFD823] text-black font-bold py-4 rounded-xl text-center text-base shadow-lg mt-4 mb-2" onClick={() => handleBerangkat(orderDetail.id)}>
+                        Berangkat Sekarang 
+                      </button>
+                    </>
                   )}
-                </>
-              )}
-            </div>
-          ))}
+                </div>
+              );
+            })
+          )}
         </>
       </div>
       <AllertPage show={showModal} onClose={() => setShowModal(false)} />

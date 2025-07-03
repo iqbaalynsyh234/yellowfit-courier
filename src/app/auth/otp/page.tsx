@@ -3,7 +3,7 @@ import HeaderPage from "@/components/Header";
 import KeyboardPage from "@/components/Keyboard";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useOtpVerification } from "@/hooks/useOtpVerification";
 import OtpErrorAlert from "@/components/allert/OtpErrorAlert";
 
@@ -11,13 +11,14 @@ export default function OtpPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [showKeyboard, setShowKeyboard] = useState(false);
-  const phoneNumber = "082271153305";
   const router = useRouter();
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   const { verifyOtp, loading, error } = useOtpVerification();
   const [counter, setCounter] = useState(59);
   const [canResend, setCanResend] = useState(false);
   const [showOtpError, setShowOtpError] = useState(false);
+  const searchParams = useSearchParams();
+  const phoneNumber = searchParams.get("phone") || "";
 
   const handleKeyboardInput = (key: string | number) => {
     if (key === "⌫") {

@@ -26,17 +26,27 @@ export const verifyOtpApi = async (otpData: OtpRequest): Promise<OtpResponse> =>
   } catch (error: any) {
     console.error('OTP verification error:', error);
     const errorMessage = error.response?.data?.message || error.message || 'OTP verification failed';
-    throw new Error(errorMessage);
+    return {
+      success: false,
+      message: errorMessage,
+    };
   }
 };
 
 export const validateOtpApi = async ({ phone, otp }: { phone: string; otp: string }) => {
-  const response = await fetch("/api/validate-otp", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone, otp }),
-  });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || "OTP validation failed");
-  return data;
+  try {
+    const response = await fetch("/api/validate-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, otp }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "OTP validation failed");
+    return data;
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "OTP validation failed",
+    };
+  }
 }; 

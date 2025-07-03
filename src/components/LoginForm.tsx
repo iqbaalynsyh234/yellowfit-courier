@@ -20,7 +20,7 @@ export default function LoginForm() {
     const data = await login(phoneNumber);
     console.log('Login data received:', data);
     if (data && (data.success || data.status === 'success')) {
-      router.push("/auth/otp");
+      router.push(`/auth/otp?phone=${phoneNumber}`);
     } else if (
       (data && (data.status === 'fail' || data.code === 400 || (data.message && data.message.toLowerCase().includes("tidak terdaftar")))) ||
       (error && error.toLowerCase().includes("tidak terdaftar"))
@@ -77,7 +77,6 @@ export default function LoginForm() {
         ) : (
           // Main Content
           <form onSubmit={handleLogin} className="flex flex-col flex-1 justify-center px-6">
-            {/* Logo di atas teks Selamat Datang! */}
             <div className="flex items-center rounded-lg px-2 py-2 mb-7 w-fit shadow z-20">
               <Image
                 src="/assets/yfk/image/logo.png"
