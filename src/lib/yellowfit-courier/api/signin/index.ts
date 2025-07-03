@@ -60,7 +60,26 @@ export const isAuthenticated = (): boolean => {
 // Fungsi untuk mendapatkan user data
 export const getCurrentUser = () => {
   if (typeof window === 'undefined') return null;
-  
   const userStr = localStorage.getItem('user');
   return userStr ? JSON.parse(userStr) : null;
+};
+
+export const requestOtpApi = async (phone: string) => {
+  try {
+    const response = await fetch('/api/login/request-otp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ phone }),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'Request OTP failed');
+    }
+    return data;
+  } catch (error: any) {
+    console.error('Request OTP error:', error);
+    throw new Error(error.message || 'Request OTP failed');
+  }
 };

@@ -1,11 +1,12 @@
 "use client";
-import HeaderPage from "@/components/Header";
+
 import KeyboardPage from "@/components/Keyboard";
 import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useOtpVerification } from "@/hooks/useOtpVerification";
 import OtpErrorAlert from "@/components/allert/OtpErrorAlert";
+import { requestOtpApi } from "@/lib/yellowfit-courier/api/signin/index";
 
 export default function OtpPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -107,7 +108,12 @@ export default function OtpPage() {
   const handleResend = async () => {
     if (!canResend) return;
     setCanResend(false);
-    setCounter(59);
+    setCounter(60);
+    try {
+      await requestOtpApi(phoneNumber);
+    } catch (err: any) {
+      setShowOtpError(true);
+    }
   };
 
   return (
