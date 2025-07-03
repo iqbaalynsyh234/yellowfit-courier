@@ -1,4 +1,4 @@
-import { PickupDetailResponse, PickupDetailItem } from '@/interfaces/PickupDetail';
+import { PickupDetailResponse} from '@/interfaces/PickupDetail';
 
 const Tugas = {
   getTugasList: async (

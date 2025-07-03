@@ -2,7 +2,7 @@
 
 import BottomNavPage from "@/components/bottom-nav";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import HeaderDashboardPage from "../../../../../features/dashboard/components/HeaderDashbord";
 
 
@@ -38,12 +38,16 @@ const dummyTugas = [
 
 export default function TugasCourierPage() {
   const [tugasList] = useState(dummyTugas);
-  const currentDate = new Date().toLocaleDateString("id-ID", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+  const [currentDate, setCurrentDate] = useState("");
+
+  useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString("id-ID", {
+      weekday: "long",
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }));
+  }, []);
 
   return (
     <div className="min-h-screen w-full bg-black relative pb-20 overflow-hidden">
@@ -76,7 +80,7 @@ export default function TugasCourierPage() {
           }}
         />
       </div>
-      <div className="w-full max-w-[470px] flex-1 px-4 pt-4 relative z-10 mx-auto flex flex-col">
+      <div className="w-full max-w-[475px] flex-1 px-4 pt-4 relative z-10 mx-auto flex flex-col">
         <HeaderDashboardPage />
         <div className="text-white font-bold text-lg mb-2 mt-2">{currentDate}</div>
         {tugasList.length === 0 ? (

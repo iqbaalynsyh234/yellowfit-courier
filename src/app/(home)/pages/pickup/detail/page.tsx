@@ -6,7 +6,8 @@ import BottomNavPage from "@/components/bottom-nav";
 import ScanQrcode from "@/components/scan/ScanQrcode";
 import DetailPengiriman from "@/components/DetailPengiriman";
 import HeaderPickupDetail from "@/../features/pickup-detail/components/HeaderPickupDetail";
-import { getPickupDetailByGenerateCode, PickupDetailResponse } from "@/lib/yellowfit-courier/api/pickup-detail/pickupdetail";
+import { getPickupDetailByGenerateCode } from "@/lib/yellowfit-courier/api/pickup-detail/pickupdetail";
+import { PickupDetailResponse } from "@/interfaces/PickupDetail";
 
 export default function PickupDetailPage() {
   const router = useRouter();
@@ -36,7 +37,6 @@ export default function PickupDetailPage() {
     return <div className="text-white text-center py-8">Loading...</div>;
   }
 
-  // Data utama dari API: detail?.data?.data (array)
   const boxList = Array.isArray(detail?.data?.data) ? detail.data.data : [];
 
   return (
@@ -48,7 +48,7 @@ export default function PickupDetailPage() {
             {boxList.length} Box <span className="font-normal text-gray-400">Pickup Pengantaran</span>
           </div>
           {boxList.map((item: any, idx: number) => {
-            const isOpen = false; // Atur expand/collapse sesuai kebutuhan
+            const isOpen = false; 
             return (
               <div
                 key={item.id}
