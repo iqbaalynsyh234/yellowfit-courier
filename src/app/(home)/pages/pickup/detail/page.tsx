@@ -1,83 +1,75 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import BottomNavPage from "@/components/bottom-nav";
 import ScanQrcode from "@/components/scan/ScanQrcode";
 import DetailPengiriman from "@/components/DetailPengiriman";
 import HeaderPickupDetail from "@/../features/pickup-detail/components/HeaderPickupDetail";
-
-const boxList = [
-  {
-    id: "1668091",
-    status: "Dalam Pengantaran",
-    name: "Angelica Theresia",
-    address: "Pademangan timur 4 gang 32 komplek duta kemayoran blok",
-  },
-  {
-    id: "1668092",
-    status: "Dalam Pengantaran",
-    name: "Angelica Theresia",
-    address: "Pademangan timur 4 gang 32 komplek duta kemayoran blok",
-
-  },
-  {
-    id: "1668093",
-    status: "Dalam Pengantaran",
-    name: "Angelica Theresia",
-    address: "Pademangan timur 4 gang 32 komplek duta kemayoran blok",
-
-  },
-];
+import { getPickupDetailByGenerateCode, PickupDetailResponse } from "@/lib/yellowfit-courier/api/pickup-detail/pickupdetail";
 
 export default function PickupDetailPage() {
   const router = useRouter();
-  const [openIdx, setOpenIdx] = useState<number | null>(null);
+  const searchParams = useSearchParams();
+  const generate_code = searchParams.get("generate_code") || "";
+  const tanggal = searchParams.get("tanggal") || "";
+
+  const [detail, setDetail] = useState<PickupDetailResponse | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showCamera, setShowCamera] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
   const [detailData, setDetailData] = useState<any>(null);
 
+  useEffect(() => {
+    const fetchDetail = async () => {
+      if (!generate_code || !tanggal) return;
+      setLoading(true);
+      const token = localStorage.getItem("token") || "";
+      const res = await getPickupDetailByGenerateCode(generate_code, tanggal, token);
+      setDetail(res);
+      setLoading(false);
+    };
+    fetchDetail();
+  }, [generate_code, tanggal]);
+
+  if (loading) {
+    return <div className="text-white text-center py-8">Loading...</div>;
+  }
+
+  // Data utama dari API: detail?.data?.data (array)
+  const boxList = Array.isArray(detail?.data?.data) ? detail.data.data : [];
+
   return (
     <div className="min-h-screen bg-black bg-opacity-80 relative flex justify-center pb-24">
       <div className="w-full max-w-[470px] mx-auto">
-        <HeaderPickupDetail onScanClick={() => setShowCamera(true)} />
+        <HeaderPickupDetail onScanClick={() => setShowCamera(true)} generateCode={generate_code} />
         <div className="py-4 mt-2">
           <div className="font-bold text-white text-base mb-2">
-            32 Box <span className="font-normal text-gray-400">Pickup Pengantaran</span>
+            {boxList.length} Box <span className="font-normal text-gray-400">Pickup Pengantaran</span>
           </div>
-          {boxList.map((item, idx) => {
-            const isOpen = openIdx === idx;
+          {boxList.map((item: any, idx: number) => {
+            const isOpen = false; // Atur expand/collapse sesuai kebutuhan
             return (
               <div
                 key={item.id}
                 className={`bg-[#232323] rounded-2xl p-4 flex flex-col gap-2 shadow relative mb-4 transition border-2 ${isOpen ? "border-yellow-400" : "border-transparent"} cursor-pointer`}
-                onClick={() => setOpenIdx(isOpen ? null : idx)}
+                // onClick={() => setOpenIdx(isOpen ? null : idx)}
               >
                 <span className="absolute right-4 top-4 z-10">
                   <span className="inline-flex items-center gap-1 bg-[#FFB37C] text-white text-xs font-bold rounded-full px-3 py-1 shadow">
                     <span className="inline-block w-4 h-4 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#FFB37C"/><path d="M12 7v5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="16" r="1" fill="#fff"/></svg>
                     </span>
-                    {item.status}
+                    {/* Ganti dengan status dari API jika ada */}
+                    {item.status || "Dalam Pengantaran"}
                   </span>
                 </span>
-                {/* Icon expand/collapse */}
-                <span className="absolute right-4 top-12 text-gray-400">
-                  <svg width="24" height="35" fill="none" viewBox="0 0 24 24">
-                    <path stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d={isOpen ? "M6 15l6-6 6 6" : "M9 6l6 6-6 6"} />
-                  </svg>
-                </span>
-                <span className="inline-block  text-white text-xs font-bold rounded-full px-3 py-1 mb-1 w-fit">
+                <span className="inline-block text-white text-xs font-bold rounded-full px-3 py-1 mb-1 w-fit">
                   # {item.id}
                 </span>
-                <div className="text-white font-bold text-lg tracking-wide">{item.name}</div>
-                <div className="text-gray-300 text-sm">{item.address}</div>
-                {isOpen && (
-                  <div className="flex gap-2 mt 3">
-                    <button className="flex-1 bg-[#FFD823] text-black font-bold rounded-full py-2" onClick={e => {e.stopPropagation(); setDetailData(item); setShowDetail(true);}}>Detail Pengiriman</button>
-                    <button className="flex-1 bg-[#FF5A5A] text-white font-bold rounded-full py-2">Delete</button>
-                  </div>
-                )}
+                <div className="text-white font-bold text-lg tracking-wide">{item.name || item.penerima || "-"}</div>
+                <div className="text-gray-300 text-sm">{item.address || item.alamat || "-"}</div>
+                {/* Tambahkan tombol detail/dll jika perlu */}
               </div>
             );
           })}
@@ -90,7 +82,7 @@ export default function PickupDetailPage() {
         <ScanQrcode onClose={() => setShowCamera(false)} />
       )}
       {showDetail && detailData && (
-        <div className="fixed inset-0 z-50 flex items-center jfalsey-center bg-black bg-opacity-80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80">
           <DetailPengiriman
             paketId={`#${detailData.id}`}
             alamat={detailData.address}
@@ -104,3 +96,4 @@ export default function PickupDetailPage() {
     </div>
   );
 }
+

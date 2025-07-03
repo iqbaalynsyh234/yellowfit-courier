@@ -1,10 +1,12 @@
+import React from "react";
 import { useRouter } from "next/navigation";
 
-type HeaderPickupDetailProps = {
-  onScanClick: () => void;
-};
+interface HeaderPickupDetailProps {
+  onScanClick?: () => void;
+  generateCode?: string;
+}
 
-export default function HeaderPickupDetail({ onScanClick }: HeaderPickupDetailProps) {
+const HeaderPickupDetail: React.FC<HeaderPickupDetailProps> = ({ onScanClick, generateCode }) => {
   const router = useRouter();
   return (
     <div className="bg-[#FFD823] w-full max-w-[470px] mx-auto px-4 pt-4 pb-4 flex flex-col gap-2 rounded-none">
@@ -19,7 +21,7 @@ export default function HeaderPickupDetail({ onScanClick }: HeaderPickupDetailPr
           </svg>
         </button>
         <div className="font-bold text-lg text-black tracking-wider flex-1">
-          GRK1L120240207091800
+          {generateCode || ""}
         </div>
       </div>
       <div className="text-xs text-gray-700 mb-1">Masukkan Kode Barcode atau scan barcode</div>
@@ -38,4 +40,6 @@ export default function HeaderPickupDetail({ onScanClick }: HeaderPickupDetailPr
       </div>
     </div>
   );
-}
+};
+
+export default HeaderPickupDetail;

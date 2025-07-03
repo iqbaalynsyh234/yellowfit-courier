@@ -5,13 +5,12 @@ import BottomNavPage from "@/components/bottom-nav";
 import HeaderPagePickup from "../../../../../features/pickup/components/HeaderPickupPage";
 import DashboardTanggal from "../../../../../features/dashboard/components/DashboardTanggal";
 import { useRouter } from "next/navigation";
-import { format } from 'date-fns';
 import { usePickupList } from '@/hooks/usePickupList';
+import { getPickupDetailByGenerateCode } from '@/lib/yellowfit-courier/api/pickup-detail/pickupdetail';
 
 export default function PickupPage() {
   const router = useRouter();
-  const [tanggal] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
-
+  const [tanggal] = useState<string>("2025-07-01");  // format yyyy-mm-dd
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') || '' : '';
   const { pickupData, loading, error } = usePickupList(tanggal, token);
 
@@ -24,6 +23,12 @@ export default function PickupPage() {
       default:
         return sesi;
     }
+  };
+
+  const handleDetail = async (generate_code: string, tanggal: string) => {
+    const token = localStorage.getItem('token') || '';
+    const detail = await getPickupDetailByGenerateCode(generate_code, tanggal, token);
+    router.push(`/pages/pickup/detail?generate_code=${encodeURIComponent(generate_code)}&tanggal=${encodeURIComponent(tanggal)}`);
   };
 
   if (loading) {
@@ -64,7 +69,7 @@ export default function PickupPage() {
                 <div
                   key={item.id}
                   className="bg-[#232323] rounded-2xl p-4 flex flex-col gap-2 shadow relative cursor-pointer"
-                  onClick={() => router.push(`/pages/pickup/detail?id=${item.id}`)}
+                  onClick={() => handleDetail(item.generate_code, item.tanggal)}
                 >
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
                     <svg width="24" height="35" fill="none" viewBox="0 0 24 24">
