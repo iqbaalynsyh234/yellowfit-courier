@@ -1,6 +1,6 @@
 import { apiCall, axiosExternalInstance } from '../BaseUrl';
 import { API_ENDPOINTS } from '../ApiEndpoints';
-import type { Root as OrderDetailResponse, Daum as OrderDetailItem, OrderSummaryResponse } from '@/interfaces/Dashboard';
+import type { Root as OrderDetailResponse, Daum as OrderSummaryResponse } from '@/interfaces/Dashboard';
 
 export interface DashboardStats {
   totalPickups: number;
@@ -47,7 +47,7 @@ export const getOrderDetailApi = async (tanggal?: string): Promise<OrderDetailRe
       }
     );
     
-    console.log('Order detail response:', response.data);
+    console.log('response order detail:', response.data);
     return response.data;
   } catch (error: any) {
     console.error('Order detail error:', error);

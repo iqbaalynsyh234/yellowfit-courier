@@ -76,7 +76,6 @@ const getCsrfToken = async (): Promise<string> => {
       });
       
       if (response.ok) {
-        // Extract CSRF token from cookies
         if (typeof document !== 'undefined') {
           const cookies = document.cookie.split(';');
           const csrfCookie = cookies.find(cookie => 
@@ -154,7 +153,6 @@ axiosExternalInstance.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-
 export const logoutApi = async () => {
   const token = localStorage.getItem('token');
   if (!token) throw new Error('No authentication token found');

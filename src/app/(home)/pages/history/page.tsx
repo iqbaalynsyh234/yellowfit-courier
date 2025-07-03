@@ -1,44 +1,61 @@
 "use client";
 
 import BottomNavPage from "@/components/bottom-nav";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DetailPengiriman from "@/components/DetailPengiriman";
 import ScanBarcodePage from "../../../../../features/history/components/ScanBarcodePage";
 import HeaderHistoryPage from '../../../../../features/history/components/HeaderHistoryPage';
-
-const dummyHistory = [
-  {
-    id: "1668091",
-    nama: "Angelica Theresia",
-    alamat: "Pademangan timur 4 gang 32 komplek duta kemayoran blok",
-    status: "Selesai",
-    telepon: "08123456789",
-    paket: "Box Lunch 1"
-  },
-  {
-    id: "1668092",
-    nama: "Budi Santoso",
-    alamat: "Jl. Melati No. 10, Jakarta",
-    status: "Selesai",
-    telepon: "08198765432",
-    paket: "Box Dinner 2"
-  },
-];
+import { getOrderHistoryApi, getOrderHistoryDetailApi } from "@/lib/yellowfit-courier/api/history/HistoryApi";
+import { format } from "date-fns";
 
 export default function HistoryPage() {
   const [search, setSearch] = useState("");
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const [detailData, setDetailData] = useState<any>(null);
+  const [history, setHistory] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const today = format(new Date(), "yyyy-MM-dd");
+        const data = await getOrderHistoryApi(today);
+        setHistory(data.data.data);
+      } catch (err: any) {
+        setError(err.message || "Gagal mengambil data history");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchHistory();
+  }, []);
+
+  const handleDetail = async (barcode: string | number) => {
+    setLoadingDetail(true);
+    setError(null);
+    try {
+      const detail = await getOrderHistoryDetailApi(barcode);
+      setDetailData(detail.data);
+    } catch (err: any) {
+      setError(err.message || "Gagal mengambil detail pengiriman");
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
 
   if (detailData) {
     return (
       <div className="min-h-screen w-full bg-black relative flex flex-col items-center pb-20 overflow-hidden">
         <DetailPengiriman
-          paketId={detailData.id}
-          alamat={detailData.alamat}
-          penerima={detailData.nama}
-          telepon={detailData.telepon}
-          paket={detailData.paket}
+          paketId={detailData.barcode || detailData.id}
+          alamat={detailData.address || detailData.alamat}
+          penerima={detailData.datacustomer ? `${detailData.datacustomer.fname} ${detailData.datacustomer.lname}` : detailData.nama}
+          telepon={detailData.datacustomer ? detailData.datacustomer.phone : detailData.telepon}
+          paket={detailData.paket || "-"}
           onClose={() => setDetailData(null)}
         />
         <BottomNavPage />
@@ -61,37 +78,46 @@ export default function HistoryPage() {
             onChange={e => setSearch(e.target.value)}
           />
           <div className="w-full flex-1 px-4 pt-4">
-            {dummyHistory.map((item, idx) => {
-              const isOpen = openIdx === idx;
-              return (
-                <div
-                  key={idx}
-                  className="bg-[#232323] rounded-2xl p-4 flex flex-col gap-2 shadow relative mb-4"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-400 font-mono"># {item.id}</span>
-                    <span className="bg-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ml-auto">
-                      <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#3AC0A0"/><path d="M8 12.5l2.5 2.5 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>
-                      Selesai
-                    </span>
-                    <button className="ml-2" onClick={() => setOpenIdx(isOpen ? null : idx)} aria-label={isOpen ? "Sembunyikan detail" : "Tampilkan detail"}>
-                      {isOpen ? (
-                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                      ) : (
-                        <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                      )}
-                    </button>
+            {loading ? (
+              <div className="text-white text-center mt-8">Loading...</div>
+            ) : error ? (
+              <div className="text-red-500 text-center mt-8">{error}</div>
+            ) : history.length === 0 ? (
+              <div className="text-gray-400 text-center mt-8">Tidak ada data history hari ini.</div>
+            ) : (
+              history.map((item, idx) => {
+                const isOpen = openIdx === idx;
+                const customer = item.datacustomer;
+                return (
+                  <div
+                    key={item.id}
+                    className="bg-[#232323] rounded-2xl p-4 flex flex-col gap-2 shadow relative mb-4"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs text-gray-400 font-mono"># {item.barcode || item.id}</span>
+                      <span className="bg-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ml-auto">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#3AC0A0"/><path d="M8 12.5l2.5 2.5 5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/></svg>
+                        Selesai
+                      </span>
+                      <button className="ml-2" onClick={() => setOpenIdx(isOpen ? null : idx)} aria-label={isOpen ? "Sembunyikan detail" : "Tampilkan detail"}>
+                        {isOpen ? (
+                          <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        ) : (
+                          <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        )}
+                      </button>
+                    </div>
+                    <div className="font-bold text-white text-sm mb-1">{customer ? `${customer.fname} ${customer.lname}` : item.nama}</div>
+                    <div className="text-xs text-gray-300 mb-1">{customer ? customer.address : item.alamat}</div>
+                    {isOpen && (
+                      <button className="w-full bg-[#FFD823] text-black font-bold py-3 rounded-xl text-center text-base shadow-lg mt-2" onClick={() => handleDetail(item.barcode || item.id)} disabled={loadingDetail}>
+                        {loadingDetail ? 'Loading...' : 'Detail Pengiriman'}
+                      </button>
+                    )}
                   </div>
-                  <div className="font-bold text-white text-sm mb-1">{item.nama}</div>
-                  <div className="text-xs text-gray-300 mb-1">{item.alamat}</div>
-                  {isOpen && (
-                    <button className="w-full bg-[#FFD823] text-black font-bold py-3 rounded-xl text-center text-base shadow-lg mt-2" onClick={() => setDetailData(item)}>
-                      Detail Pengiriman
-                    </button>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
       </div>

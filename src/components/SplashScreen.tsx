@@ -7,7 +7,7 @@ interface SplashScreenProps {
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
   React.useEffect(() => {
-    const timer = setTimeout(onFinish, 5000); // 5 detik
+    const timer = setTimeout(onFinish, 5000);
     return () => clearTimeout(timer);
   }, [onFinish]);
 
@@ -27,8 +27,19 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           transform: "translate(-50%, -50%)",
           zIndex: 9999,
           background: `url('/assets/yfk/image/bg-img.png') center/cover no-repeat`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
-      />
+      >
+        <motion.img
+          src="/assets/yfk/image/logo.png"
+          alt="Logo"
+          style={{ width: 70, height: 70 }}
+          animate={{ rotate: 360 }}
+          transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+        />
+      </motion.div>
     </AnimatePresence>
   );
 };

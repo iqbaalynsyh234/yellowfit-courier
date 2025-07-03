@@ -29,7 +29,6 @@ export default function DetailPengiriman({
 
   return (
     <div className="w-full max-w-[475px] mx-auto flex flex-col min-h-screen relative">
-      {/* Tombol Close */}
       {onClose && (
         <button
           className="absolute top-3 right-4 z-20 bg-white bg-opacity-80 hover:bg-opacity-100 text-black rounded-full p-2 shadow"

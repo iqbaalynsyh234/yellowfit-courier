@@ -89,6 +89,11 @@ export default function DashboardPage() {
     );
   };
 
+  const filteredOrderDetails = orderDetails.filter(
+    (orderDetail) =>
+      orderDetail.sts_kirim === "0" && orderDetail.kurirdmd != null
+  );
+
   return detailData ? (
     <div className="relative min-h-screen w-full">
       <div className="relative z-10 flex flex-col items-center min-h-screen justify-between">
@@ -136,10 +141,10 @@ export default function DashboardPage() {
             pickup={orderSummary?.pickup?.toString() || "0"}
             selesai={orderSummary?.delivered?.toString() || "0"}
           />
-          {orderDetails.length === 0 ? (
+          {filteredOrderDetails.length === 0 ? (
             <div className="text-gray-400 text-center mt-8">Tidak ada data pengantaran hari ini.</div>
           ) : (
-            orderDetails.map((orderDetail) => {
+            filteredOrderDetails.map((orderDetail) => {
               const statusInfo = getOrderStatus(
                 orderDetail.sts_kirim,
                 orderDetail.kurirdmd != null ? String(orderDetail.kurirdmd) : null
