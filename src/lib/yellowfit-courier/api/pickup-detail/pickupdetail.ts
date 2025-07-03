@@ -1,8 +1,10 @@
+import { PickupDetailResponse, PickupDetailItem } from '@/interfaces/PickupDetail';
+
 const Tugas = {
   getTugasList: async (
     tanggal: string,
     token: string
-  ): Promise<> => {
+  ): Promise<any> => {
     const query = tanggal ? `?tanggal=${encodeURIComponent(tanggal)}` : '';
     const response = await fetch(`/api/tugas${query}`, {
       method: 'GET',
@@ -18,21 +20,6 @@ const Tugas = {
 export interface PickupDetailRequest {
   generate_code: string;
   tanggal: string;
-}
-
-export interface PickupDetailItem {
-  // Tambahkan field sesuai response detail pickup
-  id: number;
-  // ... tambahkan field lain jika ada
-}
-
-export interface PickupDetailResponse {
-  code: number;
-  status: string;
-  pickup: number;
-  ijinkan_berangkat: string;
-  is_permission: number;
-  data: any; // bisa diganti dengan tipe detail jika sudah tahu
 }
 
 export async function getPickupDetailByGenerateCode(

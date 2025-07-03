@@ -60,7 +60,6 @@ export default function PickupDetailPage() {
                     <span className="inline-block w-4 h-4 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="12" fill="#FFB37C"/><path d="M12 7v5" stroke="#fff" strokeWidth="2" strokeLinecap="round"/><circle cx="12" cy="16" r="1" fill="#fff"/></svg>
                     </span>
-                    {/* Ganti dengan status dari API jika ada */}
                     {item.status || "Dalam Pengantaran"}
                   </span>
                 </span>
