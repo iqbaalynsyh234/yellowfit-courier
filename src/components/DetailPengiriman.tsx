@@ -14,7 +14,7 @@ interface DetailPengirimanProps {
   phone: string;
   phone_clr: string;
  };
- onHubungiCustomer?: () => void;
+ onHubungiCustomer?: () => void;  
  onClose?: () => void;
 }
 

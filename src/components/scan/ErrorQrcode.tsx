@@ -9,7 +9,7 @@ export default function QrCodeError({ onScanAgain }: QrCodeErrorProps) {
     <div className="fixed inset-0 z-50 w-full min-h-screen flex flex-col justify-center items-center bg-black bg-opacity-80">
       {/* Background image */}
       <div className="absolute inset-0 w-full h-full z-0 flex justify-center">
-        <div className="relative w-full max-w-[375px] h-full">
+        <div className="relative w-full max-w-[475px] h-full">
           <Image
             src="/assets/yfk/image/bg-img.png"
             alt="Background"
@@ -20,7 +20,7 @@ export default function QrCodeError({ onScanAgain }: QrCodeErrorProps) {
           />
         </div>
       </div>
-      <div className="relative w-full max-w-[375px] mx-auto flex flex-col min-h-screen z-10">
+      <div className="relative w-full max-w-[475px] mx-auto flex flex-col min-h-screen z-10">
         {/* Header */}
         <div className="w-full bg-[#FFD823] px-4 py-4 flex items-center justify-center z-10 relative">
           <span className="font-bold text-black text-base">Detail Pengiriman</span>

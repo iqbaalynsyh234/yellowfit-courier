@@ -4,7 +4,6 @@ import BottomNavPage from '@/components/bottom-nav';
 import { useState, useEffect } from 'react';
 import DetailPengiriman from '@/components/DetailPengiriman';
 import ScanBarcodePage from '../../../../../features/history/components/ScanBarcodePage';
-
 import {
  getOrderHistoryApi,
  getOrderHistoryDetailApi,
@@ -79,9 +78,9 @@ export default function HistoryPage() {
     <Image
      src='/assets/yfk/image/bg-img.png'
      alt='Background'
-     width={475}
-     height={800}
-     className='absolute inset-0 w-full h-full object-cover z-0'
+     width={300}
+     height={400}
+     className='absolute inset-0 w-full max-w-[475px] object-cover z-0'
      style={{ pointerEvents: 'none' }}
     />
     <div className='relative z-10 w-full flex flex-col items-center'>

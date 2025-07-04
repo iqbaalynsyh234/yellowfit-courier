@@ -30,20 +30,6 @@ export default function BottomNavPage() {
      </span>
     </button>
 
-    <button
-     className={`flex flex-col items-center flex-1 group ${
-      pathname === '/pages/tugas' ? 'text-yellow-400' : 'text-white'
-     }`}
-     onClick={() => router.push('/pages/tugas')}>
-     <MdAssignment className='w-6 h-6 mb-1 group-hover:text-yellow-400' />
-     <span
-      className={`text-lg group-hover:text-yellow-400 ${
-       pathname === '/pages/tugas' ? 'text-yellow-400 font-bold' : ''
-      }`}>
-      Tugas
-     </span>
-    </button>
-
     {/* Pickup */}
     <button
      className={`flex flex-col items-center flex-1 group ${
@@ -62,6 +48,19 @@ export default function BottomNavPage() {
        pathname === '/pages/pickup' ? 'text-yellow-400 font-bold' : ''
       }`}>
       Pickup
+     </span>
+    </button>
+    <button
+     className={`flex flex-col items-center flex-1 group ${
+      pathname === '/pages/tugas' ? 'text-yellow-400' : 'text-white'
+     }`}
+     onClick={() => router.push('/pages/tugas')}>
+     <MdAssignment className='w-6 h-6 mb-1 group-hover:text-yellow-400' />
+     <span
+      className={`text-lg group-hover:text-yellow-400 ${
+       pathname === '/pages/tugas' ? 'text-yellow-400 font-bold' : ''
+      }`}>
+      Tugas
      </span>
     </button>
     {/* History */}

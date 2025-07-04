@@ -15,13 +15,13 @@ import {
 } from '@/lib/yellowfit-courier/api/dashboard';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import type { Daum } from '@/interfaces/Dashboard';
 
 export default function DashboardPage() {
  const [orderDetails, setOrderDetails] = useState<OrderDetailItem[]>([]);
  const [orderLoading, setOrderLoading] = useState(false);
  const [orderError, setOrderError] = useState<string | null>(null);
  const [showModal, setShowModal] = useState(false);
- const [showCameraModal, setShowCameraModal] = useState(false);
  const [detailData, setDetailData] = useState<{
   paketId: string;
   alamat: string;
@@ -29,6 +29,13 @@ export default function DashboardPage() {
   telepon: string;
   paket: string;
  } | null>(null);
+ const [uploadingFoto, setUploadingFoto] = useState(false);
+ const [fotoError, setFotoError] = useState<string | null>(null);
+ const [realDetail, setRealDetail] = useState<Daum | null>(null);
+ const [loadingDetail, setLoadingDetail] = useState(false);
+ const [detailError, setDetailError] = useState<string | null>(null);
+ const [selectedOrderForPhoto, setSelectedOrderForPhoto] =
+  useState<OrderDetailItem | null>(null);
  const currentDate = format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id });
  const {
   data: orderSummary,
@@ -98,7 +105,29 @@ export default function DashboardPage() {
   (orderDetail) => orderDetail.sts_kirim === '0' && orderDetail.kurirdmd != null
  );
 
- return detailData ? (
+ return realDetail ? (
+  <div className='relative min-h-screen w-full'>
+   <div className='relative z-10 flex flex-col items-center min-h-screen justify-between'>
+    <DetailPengiriman
+     paketId={`#${realDetail.barcode || realDetail.id || ''}`}
+     alamat={realDetail.datacustomer?.address || realDetail.address || '-'}
+     penerima={realDetail.penerima || realDetail.datacustomer?.fname || '-'}
+     telepon={realDetail.datacustomer?.phone || '-'}
+     paket={'-'}
+     datacustomer={
+      realDetail.datacustomer
+       ? {
+          ...realDetail.datacustomer,
+          phone_clr: realDetail.datacustomer.phone_clr || '',
+         }
+       : undefined
+     }
+     onClose={() => setRealDetail(null)}
+    />
+    <div className='flex-1' />
+   </div>
+  </div>
+ ) : detailData ? (
   <div className='relative min-h-screen w-full'>
    <div className='relative z-10 flex flex-col items-center min-h-screen justify-between'>
     <DetailPengiriman
@@ -229,7 +258,7 @@ export default function DashboardPage() {
             </a>
             <button
              className='flex-1 bg-[#FFD823] text-black font-semibold py-2 rounded-xl text-sm'
-             onClick={() => setShowCameraModal(true)}>
+             onClick={() => setSelectedOrderForPhoto(orderDetail)}>
              Foto Pengantaran
             </button>
            </div>
@@ -250,21 +279,84 @@ export default function DashboardPage() {
     show={showModal}
     onClose={() => setShowModal(false)}
    />
-   {showCameraModal && !detailData && (
+   {selectedOrderForPhoto && !detailData && !realDetail && (
     <div className='fixed inset-0 z-50 flex items-center justify-center'>
-     <div className='relative w-full max-w-[375px]'>
+     <div className='relative w-full max-w-[475px]'>
       <CameraModalPages
-       onClose={() => setShowCameraModal(false)}
-       onSave={(data) => {
-        setDetailData(data);
-        setShowCameraModal(false);
+       order={selectedOrderForPhoto}
+       onClose={() => setSelectedOrderForPhoto(null)}
+       onSave={async (data) => {
+        setUploadingFoto(true);
+        setFotoError(null);
+        try {
+         const token = localStorage.getItem('token');
+         const res = await fetch('/api/dashboard/foto-pengataran', {
+          method: 'POST',
+          headers: {
+           'Content-Type': 'application/json',
+           Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+         });
+         const result = await res.json();
+         if (!res.ok)
+          throw new Error(result.error || 'Gagal upload foto pengantaran');
+         setLoadingDetail(true);
+         setDetailData(null);
+         setRealDetail(null);
+         setDetailError(null);
+         try {
+          const barcode = selectedOrderForPhoto.barcode;
+          const detailRes = await fetch(
+           `/api/history/find-one?barcode=${barcode}`,
+           {
+            headers: {
+             Authorization: `Bearer ${token}`,
+             Accept: 'application/json',
+            },
+           }
+          );
+          const detailJson = await detailRes.json();
+          if (!detailRes.ok)
+           throw new Error(detailJson.error || 'Gagal ambil detail pengiriman');
+          setRealDetail(detailJson.data || detailJson);
+         } catch (err) {
+          setDetailError((err as Error).message);
+         } finally {
+          setLoadingDetail(false);
+         }
+        } catch (err) {
+         setFotoError((err as Error).message);
+        } finally {
+         setUploadingFoto(false);
+        }
        }}
       />
       <button
        className='absolute top-3 right-3 bg-gray-200 text-black px-3 py-1 rounded-lg text-xs z-20'
-       onClick={() => setShowCameraModal(false)}>
+       onClick={() => setSelectedOrderForPhoto(null)}>
        Tutup
       </button>
+      {uploadingFoto && (
+       <div className='absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center z-30'>
+        <div className='text-white text-lg'>Uploading...</div>
+       </div>
+      )}
+      {fotoError && (
+       <div className='absolute bottom-4 left-0 right-0 text-center text-red-500 bg-white bg-opacity-90 rounded p-2 z-30'>
+        {fotoError}
+       </div>
+      )}
+      {loadingDetail && (
+       <div className='absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40'>
+        <div className='text-white text-lg'>Loading detail pengiriman...</div>
+       </div>
+      )}
+      {detailError && (
+       <div className='absolute bottom-4 left-0 right-0 text-center text-red-500 bg-white bg-opacity-90 rounded p-2 z-40'>
+        {detailError}
+       </div>
+      )}
      </div>
     </div>
    )}

@@ -75,7 +75,7 @@ export default function QrCodePage({ onClose }: QrCodePageProps) {
   return (
     <div className="fixed inset-0 z-50 w-full min-h-screen flex flex-col justify-center items-center bg-transparent">
       <div className="absolute inset-0 w-full h-full z-0 flex justify-center">
-        <div className="relative w-full max-w-[375px] h-full">
+        <div className="relative w-full max-w-[475px] h-full">
           <Image
             src="/assets/yfk/image/bg-img.png"
             alt="Background"
@@ -87,7 +87,7 @@ export default function QrCodePage({ onClose }: QrCodePageProps) {
         </div>
       </div>
       {/* Wrapper utama */}
-      <div className="relative w-full max-w-[375px] mx-auto flex flex-col min-h-screen z-10">
+      <div className="relative w-full max-w-[475px] mx-auto flex flex-col min-h-screen z-10">
         {/* Tombol Close */}
         {onClose && (
           <button

@@ -18,7 +18,7 @@ export default function HeaderDashboardPage() {
   if (showScan) {
     return (
       <div className="fixed inset-0 z-[9999] w-full h-full flex items-center justify-center bg-black bg-opacity-80">
-        <div className="w-full max-w-[485px] mx-auto">
+        <div className="w-full max-w-[475px] mx-auto">
           <QrCodePage onClose={() => setShowScan(false)} />
         </div>
       </div>
