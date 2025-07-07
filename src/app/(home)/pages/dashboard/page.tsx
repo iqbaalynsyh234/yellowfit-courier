@@ -194,7 +194,7 @@ export default function DashboardPage() {
        const customerName = customer
         ? `${customer.fname} ${customer.lname}`
         : '-';
-       const customerAddress = customer ? customer.address : '-';
+       const deliveryAddress = orderDetail.address || '-';
        const customerPhone = customer ? customer.phone : '';
        const isExpanded = expandedOrderIds.includes(orderDetail.id);
        return (
@@ -245,7 +245,7 @@ export default function DashboardPage() {
           </button>
          </div>
          <div className='font-bold text-white text-sm mb-1'>{customerName}</div>
-         <div className='text-xs text-gray-300 mb-1'>{customerAddress}</div>
+         <div className='text-xs text-gray-300 mb-1'>{deliveryAddress}</div>
          {isExpanded && (
           <>
            <div className='flex gap-2 mt-3'>

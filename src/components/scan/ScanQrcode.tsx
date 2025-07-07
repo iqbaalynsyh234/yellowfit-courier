@@ -55,8 +55,6 @@ export default function QrCodePage({ onClose }: QrCodePageProps) {
         ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/png");
         setPhoto(dataUrl);
-
-        // Ganti dengan validasi asli jika sudah ada QR reader
         setTimeout(() => {
           if (dataUrl.includes("VALID")) {
             setSuccess(true);

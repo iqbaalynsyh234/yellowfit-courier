@@ -74,7 +74,6 @@ function PickupDetailContent() {
       <span className='font-normal text-gray-400'>Pickup Pengantaran</span>
      </div>
      {boxList.map((item: PickupBox) => {
-      // Status logic pickup
       let badgeColor = 'bg-gray-400';
       let badgeLabel = 'Belum Pickup';
       if (item.sts_kirim?.toString() === '1') {
@@ -161,7 +160,7 @@ function PickupDetailContent() {
          {item.name || item.penerima || '-'}
         </div>
         <div className='text-gray-300 text-sm'>
-         {item.address || item.alamat || '-'}
+         {item.address || item.alamat || ''}
         </div>
        </div>
       );

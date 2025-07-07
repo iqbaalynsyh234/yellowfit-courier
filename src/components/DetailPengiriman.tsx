@@ -121,12 +121,10 @@ export default function DetailPengiriman({
       {datacustomer?.phone || telepon}
      </span>
     </div>
-    {/* Paket */}
     <div className='flex items-center border-b border-gray-700 pb-4 mb-4'>
      <span className='text-xs text-gray-300 mr-2'>Paket</span>
      <span className='text-white text-sm font-semibold'>{paket}</span>
     </div>
-    {/* Tombol Hubungi Customer */}
     <button
      className='w-full border border-green-500 text-green-500 font-semibold py-2 rounded-xl text-base hover:bg-green-50 transition'
      onClick={() => {
