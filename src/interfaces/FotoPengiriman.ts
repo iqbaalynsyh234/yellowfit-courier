@@ -1,25 +1,17 @@
-import type { OrderDetailItem } from '@/lib/yellowfit-courier/api/dashboard';
+import type { Daum } from './Dashboard';
 
 export interface CameraModalPagesProps {
-  order: OrderDetailItem;
-  onClose?: () => void;
-  onSave?: (data: {
-    paketId: string;
-    alamat: string;
-    penerima: string;
-    telepon: string;
-    paket: string;
-    catatan?: string;
-    foto?: string | null;
-  }) => void;
+ order: Daum;
+ onClose: () => void;
+ onSave?: (formData: FormData) => void;
 }
 
 export interface FotoPengirimanData {
-  paketId: string;
-  alamat: string;
-  penerima: string;
-  telepon: string;
-  paket: string;
-  catatan?: string;
-  foto?: string | null;
+ paketId: string;
+ alamat: string;
+ penerima: string;
+ telepon: string;
+ paket: string;
+ catatan?: string;
+ foto?: string | null;
 }

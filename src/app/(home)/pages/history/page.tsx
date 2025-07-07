@@ -182,14 +182,22 @@ export default function HistoryPage() {
  return (
   <div className='min-h-screen w-full flex flex-col items-center pb-20 overflow-hidden bg-black'>
    <div className='relative w-full max-w-[475px] flex-1 flex flex-col items-center'>
-    <Image
-     src='/assets/yfk/image/bg-img.png'
-     alt='Background'
-     width={300}
-     height={400}
-     className='absolute inset-0 w-full max-w-[475px] object-cover z-0'
-     style={{ pointerEvents: 'none' }}
-    />
+    <div className='absolute inset-0 w-full max-w-[475px]'>
+     <Image
+      src='/assets/yfk/image/bg-img.png'
+      alt='Background'
+      fill
+      className='object-cover'
+      style={{ pointerEvents: 'none' }}
+     />
+     <div
+      className='absolute inset-0'
+      style={{
+       background: 'rgba(0,0,0,0.6)',
+       zIndex: 1,
+      }}
+     />
+    </div>
     <div className='relative z-10 w-full flex flex-col items-center'>
      <ScanBarcodePage
       value={search}

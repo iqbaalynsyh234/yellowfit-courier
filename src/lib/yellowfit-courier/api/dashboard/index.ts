@@ -125,3 +125,30 @@ export const getOrderStatus = (sts_kirim: string, kurirdmd?: string | null) => {
 };
 
 export type { Daum as OrderDetailItem } from '@/interfaces/Dashboard';
+
+export const setDeliveryData = async (formData: FormData) => {
+ try {
+  const token = localStorage.getItem('token');
+  if (!token) {
+   throw new Error('No authentication token found');
+  }
+
+  const response = await fetch('/api/set-data', {
+   method: 'POST',
+   headers: {
+    Authorization: `Bearer ${token}`,
+   },
+   body: formData,
+  });
+
+  if (!response.ok) {
+   const errorData = await response.json();
+   throw new Error(errorData.message || 'Failed to upload data');
+  }
+
+  return await response.json();
+ } catch (error) {
+  console.error('Set delivery data error:', error);
+  throw error;
+ }
+};

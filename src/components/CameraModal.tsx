@@ -1,23 +1,62 @@
 import Image from 'next/image';
-import { useRef, useState } from 'react';
-import type { CameraModalPagesProps, FotoPengirimanData } from '@/interfaces/FotoPengiriman';
+import { useRef, useState, useEffect } from 'react';
+import type { CameraModalPagesProps } from '@/interfaces/FotoPengiriman';
+import ErrorLocation from './allert/ErrorLocation';
+import { format } from 'date-fns';
 
 export default function CameraModalPages({
- order,onClose, onSave,
+ order,
+ onClose,
+ onSave,
 }: CameraModalPagesProps) {
  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+ const [selectedFile, setSelectedFile] = useState<File | null>(null);
  const fileInputRef = useRef<HTMLInputElement>(null);
  const [copied, setCopied] = useState(false);
  const [penerima, setPenerima] = useState('');
  const [catatan, setCatatan] = useState('');
+ const [showLocationError, setShowLocationError] = useState(false);
+ const [location, setLocation] = useState<{
+  latitude: number;
+  longitude: number;
+ } | null>(null);
+ const [isLoading, setIsLoading] = useState(false);
+
+ useEffect(() => {
+  checkLocationPermission();
+ }, []);
+
+ const checkLocationPermission = () => {
+  if (!navigator.geolocation) {
+   setShowLocationError(true);
+   return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+   (position) => {
+    setLocation({
+     latitude: position.coords.latitude,
+     longitude: position.coords.longitude,
+    });
+   },
+   () => {
+    setShowLocationError(true);
+   }
+  );
+ };
 
  const handleButtonClick = () => {
+  if (!location) {
+   setShowLocationError(true);
+   return;
+  }
   fileInputRef.current?.click();
  };
 
  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (file) {
+   setSelectedFile(file);
    const reader = new FileReader();
    reader.onload = (event) => {
     setSelectedImage(event.target?.result as string);
@@ -27,26 +66,37 @@ export default function CameraModalPages({
  };
 
  const handleCopy = () => {
-  navigator.clipboard.writeText('#1668091');
-  setCopied(true);
-  setTimeout(() => setCopied(false), 1200);
+  if (order?.barcode) {
+   navigator.clipboard.writeText(order.barcode.toString());
+   setCopied(true);
+   setTimeout(() => setCopied(false), 1200);
+  }
  };
 
- const handleSave = () => {
-  const data: FotoPengirimanData = {
-   paketId: order ? `#${order.barcode || order.id}` : '',
-   alamat: order?.datacustomer?.address || order?.address || '-',
-   penerima,
-   telepon: order?.datacustomer?.phone || '',
-   paket:
-    order?.tipeitem || order?.tipemenu
-     ? `${order?.tipeitem || ''} ${order?.tipemenu || ''}`.trim()
-     : '-',
-   catatan,
-   foto: selectedImage,
-  };
-  
-  onSave?.(data);
+ const handleSave = async () => {
+  if (!location || !selectedFile || !penerima) {
+   if (!location) setShowLocationError(true);
+   return;
+  }
+
+  setIsLoading(true);
+  try {
+   const formData = new FormData();
+   formData.append('generate_code', order.generate_code);
+   formData.append('barcode', order.barcode.toString());
+   formData.append('penerima', penerima);
+   formData.append('gambar', selectedFile);
+   formData.append('description', catatan || 'sesuai titik');
+   formData.append('tanggal', format(new Date(), 'yyyy-MM-dd'));
+   formData.append('latitude', location.latitude.toString());
+   formData.append('longitude', location.longitude.toString());
+
+   onSave?.(formData);
+  } catch (error) {
+   console.error('Error preparing data:', error);
+  } finally {
+   setIsLoading(false);
+  }
  };
 
  return (
@@ -175,8 +225,9 @@ export default function CameraModalPages({
      </button>
      <button
       className='w-full bg-[#FFD823] text-black font-bold py-2 rounded-xl text-base shadow-md hover:bg-yellow-400 transition mt-0'
-      onClick={handleSave}>
-      Simpan
+      onClick={handleSave}
+      disabled={isLoading || !location || !selectedFile || !penerima}>
+      {isLoading ? 'Menyimpan...' : 'Simpan'}
      </button>
     </div>
     <div className='absolute inset-0 w-full h-full -z-10'>
@@ -189,6 +240,13 @@ export default function CameraModalPages({
      />
     </div>
    </div>
+   <ErrorLocation
+    show={showLocationError}
+    onClose={() => {
+     setShowLocationError(false);
+     checkLocationPermission();
+    }}
+   />
   </div>
  );
 }

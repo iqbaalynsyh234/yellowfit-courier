@@ -29,7 +29,6 @@ export default function Home() {
     setShowSplash(false);
   };
 
-  // Jika masih mengecek auth status, tampilkan loading
   if (isCheckingAuth) {
     return (
       <div className="flex items-center justify-center min-h-screen">

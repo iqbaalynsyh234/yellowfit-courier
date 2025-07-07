@@ -10,4 +10,6 @@ export const API_ENDPOINTS = {
  ORDER_SUMMARY: '/api/v2/order/summary',
  LOGOUT: '/api/v2/auth/logout',
  V2_ORDER_DETAIL: '/api/v2/order/detail',
+ BERANGKAT: '/api/order/detail/berangkat',
+ SET_DATA: '/api/v2/order/detail/set-data',
 };

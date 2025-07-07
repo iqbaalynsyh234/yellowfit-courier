@@ -12,6 +12,7 @@ import { useOrderSummary } from '@/hooks/useOrderSummary';
 import {
  getOrderStatus,
  OrderDetailItem,
+ setDeliveryData,
 } from '@/lib/yellowfit-courier/api/dashboard';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -29,8 +30,6 @@ export default function DashboardPage() {
   telepon: string;
   paket: string;
  } | null>(null);
- const [uploadingFoto, setUploadingFoto] = useState(false);
- const [fotoError, setFotoError] = useState<string | null>(null);
  const [realDetail, setRealDetail] = useState<Daum | null>(null);
  const [loadingDetail, setLoadingDetail] = useState(false);
  const [detailError, setDetailError] = useState<string | null>(null);
@@ -43,6 +42,8 @@ export default function DashboardPage() {
   error: summaryError,
  } = useOrderSummary();
  const [expandedOrderIds, setExpandedOrderIds] = useState<number[]>([]);
+ const [berangkatLoading, setBerangkatLoading] = useState(false);
+ const [berangkatError, setBerangkatError] = useState<string | null>(null);
 
  useEffect(() => {
   const fetchOrderDetails = async () => {
@@ -91,8 +92,44 @@ export default function DashboardPage() {
   );
  }
 
- const handleBerangkat = () => {
-  setShowModal(true);
+ const handleBerangkat = async (orderDetail: OrderDetailItem) => {
+  setBerangkatLoading(true);
+  setBerangkatError(null);
+  try {
+   const token = localStorage.getItem('token');
+   if (!token) throw new Error('No authentication token found');
+
+   const today = format(new Date(), 'yyyy-MM-dd');
+   const response = await fetch(
+    `/api/berangkat?generate_code=${encodeURIComponent(
+     orderDetail.generate_code
+    )}&tanggal=${encodeURIComponent(today)}`,
+    {
+     method: 'GET',
+     headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+     },
+    }
+   );
+
+   const data = await response.json();
+   if (!response.ok) {
+    throw new Error(
+     data.error || data.message || 'Failed to process berangkat'
+    );
+   }
+
+   setShowModal(true);
+   //  setTimeout(() => {
+   //   window.location.reload();
+   //  }, 2000);
+  } catch (error) {
+   console.error('Berangkat error:', error);
+   setBerangkatError((error as Error).message || 'Failed to process berangkat');
+  } finally {
+   setBerangkatLoading(false);
+  }
  };
 
  const toggleShowActions = (id: number) => {
@@ -102,7 +139,7 @@ export default function DashboardPage() {
  };
 
  const filteredOrderDetails = orderDetails.filter(
-  (orderDetail) => orderDetail.sts_kirim === '0'
+  (orderDetail) => orderDetail.sts_kirim === '0' && orderDetail.kurirdmd != null
  );
 
  return realDetail ? (
@@ -186,7 +223,7 @@ export default function DashboardPage() {
      />
      {filteredOrderDetails.length === 0 ? (
       <div className='text-gray-400 text-center mt-8'>
-       Tidak ada data pengantaran hari ini..
+       Tidak ada data pengantaran hari ini ...
       </div>
      ) : (
       filteredOrderDetails.map((orderDetail) => {
@@ -206,9 +243,14 @@ export default function DashboardPage() {
          key={orderDetail.id}
          className='bg-gray-800 rounded-xl p-4 mb-3 shadow'>
          <div className='flex items-center justify-between mb-1'>
-          <span className='text-xs text-gray-400 font-mono'>
-           #{orderDetail.barcode}
-          </span>
+          <div className='flex flex-col'>
+           <span className='text-xs text-gray-400 font-mono'>
+            #{orderDetail.barcode}
+           </span>
+           <span className='text-[10px] text-gray-500 mt-0.5'>
+            {orderDetail.kodeproduksi}
+           </span>
+          </div>
           <span
            className={`text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ${statusInfo.bgColor} ${statusInfo.textColor}`}>
            {statusInfo.status}
@@ -250,6 +292,16 @@ export default function DashboardPage() {
          </div>
          <div className='font-bold text-white text-sm mb-1'>{customerName}</div>
          <div className='text-xs text-gray-300 mb-1'>{deliveryAddress}</div>
+         {orderDetail.request && orderDetail.request !== '-' && (
+          <div className='text-xs text-yellow-400 mb-2'>
+           Request: {orderDetail.request}
+          </div>
+         )}
+         {orderDetail.datakurirdmd && (
+          <div className='text-xs text-gray-400 mb-2'>
+           Kurir: {orderDetail.datakurirdmd.name}
+          </div>
+         )}
          {isExpanded && (
           <>
            <div className='flex gap-2 mt-3'>
@@ -266,11 +318,19 @@ export default function DashboardPage() {
              Foto Pengantaran
             </button>
            </div>
-           <button
-            className='w-full bg-[#FFD823] text-black font-bold py-4 rounded-xl text-center text-base shadow-lg mt-4 mb-2'
-            onClick={() => handleBerangkat()}>
-            Berangkat Sekarang
-           </button>
+           {orderDetail.sts_kirim === '0' && (
+            <button
+             className='w-full bg-[#FFD823] text-black font-bold py-4 rounded-xl text-center text-base shadow-lg mt-4 mb-2'
+             onClick={() => handleBerangkat(orderDetail)}
+             disabled={berangkatLoading}>
+             {berangkatLoading ? 'Processing...' : 'Berangkat Sekarang'}
+            </button>
+           )}
+           {berangkatError && (
+            <div className='text-red-500 text-sm text-center mt-2'>
+             {berangkatError}
+            </div>
+           )}
           </>
          )}
         </div>
@@ -282,6 +342,12 @@ export default function DashboardPage() {
    <AllertPage
     show={showModal}
     onClose={() => setShowModal(false)}
+    title='Berangkat Berhasil'
+    message='Anda telah siap untuk mengantarkan paket ini'
+    buttonText='OK'
+    onButtonClick={() => {
+     window.location.reload();
+    }}
    />
    {selectedOrderForPhoto && !detailData && !realDetail && (
     <div className='fixed inset-0 z-50 flex items-center justify-center'>
@@ -289,27 +355,35 @@ export default function DashboardPage() {
       <CameraModalPages
        order={selectedOrderForPhoto}
        onClose={() => setSelectedOrderForPhoto(null)}
-       onSave={async (data) => {
-        setUploadingFoto(true);
-        setFotoError(null);
+       onSave={async (formData) => {
         try {
-         const token = localStorage.getItem('token');
-         const res = await fetch('/api/dashboard/foto-pengataran', {
-          method: 'POST',
-          headers: {
-           'Content-Type': 'application/json',
-           Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(data),
-         });
-         const result = await res.json();
-         if (!res.ok)
-          throw new Error(result.error || 'Gagal upload foto pengantaran');
-         setLoadingDetail(true);
-         setDetailData(null);
-         setRealDetail(null);
-         setDetailError(null);
-         try {
+         formData.append('sts_kirim', '1'); // Set status to completed
+         const data = await setDeliveryData(formData);
+
+         if (data) {
+          setSelectedOrderForPhoto(null);
+          setLoadingDetail(true);
+          setDetailData(null);
+          setRealDetail(null);
+          setDetailError(null);
+
+          // Refresh order details to get updated status
+          const token = localStorage.getItem('token');
+          const today = format(new Date(), 'yyyy-MM-dd');
+          const orderResponse = await fetch(`/api/dashboard?tanggal=${today}`, {
+           method: 'GET',
+           headers: {
+            Accept: 'application/json',
+            Authorization: `Bearer ${token}`,
+           },
+          });
+          const orderData = await orderResponse.json();
+          if (!orderResponse.ok) {
+           throw new Error(orderData.error || 'Failed to fetch order detail');
+          }
+          setOrderDetails(orderData.data.data);
+
+          // Get delivery details
           const barcode = selectedOrderForPhoto.barcode;
           const detailRes = await fetch(
            `/api/history/find-one?barcode=${barcode}`,
@@ -324,15 +398,11 @@ export default function DashboardPage() {
           if (!detailRes.ok)
            throw new Error(detailJson.error || 'Gagal ambil detail pengiriman');
           setRealDetail(detailJson.data || detailJson);
-         } catch (err) {
-          setDetailError((err as Error).message);
-         } finally {
-          setLoadingDetail(false);
          }
         } catch (err) {
-         setFotoError((err as Error).message);
+         setDetailError((err as Error).message);
         } finally {
-         setUploadingFoto(false);
+         setLoadingDetail(false);
         }
        }}
       />
@@ -341,16 +411,6 @@ export default function DashboardPage() {
        onClick={() => setSelectedOrderForPhoto(null)}>
        Tutup
       </button>
-      {uploadingFoto && (
-       <div className='absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center z-30'>
-        <div className='text-white text-lg'>Uploading...</div>
-       </div>
-      )}
-      {fotoError && (
-       <div className='absolute bottom-4 left-0 right-0 text-center text-red-500 bg-white bg-opacity-90 rounded p-2 z-30'>
-        {fotoError}
-       </div>
-      )}
       {loadingDetail && (
        <div className='absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center z-40'>
         <div className='text-white text-lg'>Loading detail pengiriman...</div>
