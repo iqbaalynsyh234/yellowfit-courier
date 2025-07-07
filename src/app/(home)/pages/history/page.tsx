@@ -11,6 +11,108 @@ import {
 import { format } from 'date-fns';
 import Image from 'next/image';
 import { HistoryItem, DetailData } from '@/interfaces/History';
+const getDeliveryStatus = (
+ sts_kirim: string,
+ datakurirdmd: HistoryItem['datakurirdmd']
+) => {
+ const stsKirimNum = parseInt(sts_kirim);
+
+ if (stsKirimNum === 1) {
+  return {
+   label: 'Selesai',
+   bgColor: '#D1FAE5',
+   textColor: '#065F46',
+   iconType: 'success',
+  };
+ } else if (stsKirimNum === 0 && datakurirdmd) {
+  return {
+   label: 'Dalam Pengantaran',
+   bgColor: '#FEF3C7',
+   textColor: '#92400E',
+   iconType: 'progress',
+  };
+ } else {
+  return {
+   label: 'Belum Pickup',
+   bgColor: '#FEE2E2',
+   textColor: '#991B1B',
+   iconType: 'pending',
+  };
+ }
+};
+
+// Komponen untuk render icon berdasarkan type
+const StatusIcon = ({ type }: { type: string }) => {
+ switch (type) {
+  case 'success':
+   return (
+    <svg
+     width='16'
+     height='16'
+     fill='none'
+     viewBox='0 0 24 24'>
+     <circle
+      cx='12'
+      cy='12'
+      r='12'
+      fill='#3AC0A0'
+     />
+     <path
+      d='M8 12.5l2.5 2.5 5-5'
+      stroke='#fff'
+      strokeWidth='2'
+      strokeLinecap='round'
+     />
+    </svg>
+   );
+  case 'progress':
+   return (
+    <svg
+     width='16'
+     height='16'
+     fill='none'
+     viewBox='0 0 24 24'>
+     <circle
+      cx='12'
+      cy='12'
+      r='12'
+      fill='#F59E0B'
+     />
+     <path
+      d='M12 6v6l4 2'
+      stroke='#fff'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+     />
+    </svg>
+   );
+  case 'pending':
+   return (
+    <svg
+     width='16'
+     height='16'
+     fill='none'
+     viewBox='0 0 24 24'>
+     <circle
+      cx='12'
+      cy='12'
+      r='12'
+      fill='#EF4444'
+     />
+     <path
+      d='M12 8v4M12 16h.01'
+      stroke='#fff'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+     />
+    </svg>
+   );
+  default:
+   return null;
+ }
+};
 
 export default function HistoryPage() {
  const [search, setSearch] = useState('');
@@ -28,7 +130,12 @@ export default function HistoryPage() {
    try {
     const today = format(new Date(), 'yyyy-MM-dd');
     const data = await getOrderHistoryApi(today);
-    setHistory(data.data.data);
+
+    // Filter hanya data dengan sts_kirim = "1" (Selesai)
+    const completedOrders = data.data.data.filter(
+     (item: HistoryItem) => item.sts_kirim === '1'
+    );
+    setHistory(completedOrders);
    } catch (err: unknown) {
     setError((err as Error)?.message || 'Gagal mengambil data history');
    } finally {
@@ -95,12 +202,14 @@ export default function HistoryPage() {
        <div className='text-red-500 text-center mt-8'>{error}</div>
       ) : history.length === 0 ? (
        <div className='text-gray-400 text-center mt-8'>
-        Tidak ada data history hari ini.
+        Tidak ada data history yang selesai hari ini.
        </div>
       ) : (
        history.map((item, idx) => {
         const isOpen = openIdx === idx;
         const customer = item.datacustomer;
+        const status = getDeliveryStatus(item.sts_kirim, item.datakurirdmd);
+
         return (
          <div
           key={item.id}
@@ -109,26 +218,14 @@ export default function HistoryPage() {
            <span className='text-xs text-gray-400 font-mono'>
             # {item.barcode || item.id}
            </span>
-           <span className='bg-emerald-200 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ml-auto'>
-            <svg
-             width='16'
-             height='16'
-             fill='none'
-             viewBox='0 0 24 24'>
-             <circle
-              cx='12'
-              cy='12'
-              r='12'
-              fill='#3AC0A0'
-             />
-             <path
-              d='M8 12.5l2.5 2.5 5-5'
-              stroke='#fff'
-              strokeWidth='2'
-              strokeLinecap='round'
-             />
-            </svg>
-            Selesai
+           <span
+            className='text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ml-auto'
+            style={{
+             backgroundColor: status.bgColor,
+             color: status.textColor,
+            }}>
+            <StatusIcon type={status.iconType} />
+            {status.label}
            </span>
            <button
             className='ml-2'

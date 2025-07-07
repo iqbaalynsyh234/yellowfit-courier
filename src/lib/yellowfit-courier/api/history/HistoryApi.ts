@@ -21,14 +21,7 @@ export const getOrderHistoryApi = async (
  const data = await response.json();
  if (!response.ok)
   throw new Error(data.error || 'Failed to fetch order history');
- // filter data selesai
- return {
-  ...data,
-  data: {
-   ...data.data,
-   data: data.data.data.filter((item: HistoryItem) => item.sts_kirim === '1'),
-  },
- };
+ return data;
 };
 
 // Fetch detail pengiriman by barcode/id

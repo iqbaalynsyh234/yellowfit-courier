@@ -102,18 +102,22 @@ export default function DashboardPage() {
  };
 
  const filteredOrderDetails = orderDetails.filter(
-  (orderDetail) => orderDetail.sts_kirim === '0' && orderDetail.kurirdmd != null
+  (orderDetail) => orderDetail.sts_kirim === '0'
  );
 
  return realDetail ? (
   <div className='relative min-h-screen w-full'>
    <div className='relative z-10 flex flex-col items-center min-h-screen justify-between'>
     <DetailPengiriman
-     paketId={`#${realDetail.barcode || realDetail.id || ''}`}
-     alamat={realDetail.datacustomer?.address || realDetail.address || '-'}
-     penerima={realDetail.penerima || realDetail.datacustomer?.fname || '-'}
+     paketId={`#${realDetail.barcode}`}
+     alamat={realDetail.address}
+     penerima={
+      realDetail.datacustomer
+       ? `${realDetail.datacustomer.fname} ${realDetail.datacustomer.lname}`
+       : realDetail.penerima || '-'
+     }
      telepon={realDetail.datacustomer?.phone || '-'}
-     paket={'-'}
+     paket={realDetail.request || '-'}
      datacustomer={
       realDetail.datacustomer
        ? {
@@ -188,14 +192,14 @@ export default function DashboardPage() {
       filteredOrderDetails.map((orderDetail) => {
        const statusInfo = getOrderStatus(
         orderDetail.sts_kirim,
-        orderDetail.kurirdmd != null ? String(orderDetail.kurirdmd) : null
+        orderDetail.kurirdmd ? String(orderDetail.kurirdmd) : null
        );
        const customer = orderDetail.datacustomer;
        const customerName = customer
         ? `${customer.fname} ${customer.lname}`
-        : '-';
+        : orderDetail.penerima || '-';
        const deliveryAddress = orderDetail.address || '-';
-       const customerPhone = customer ? customer.phone : '';
+       const customerPhone = customer?.phone || '';
        const isExpanded = expandedOrderIds.includes(orderDetail.id);
        return (
         <div
@@ -206,7 +210,7 @@ export default function DashboardPage() {
            #{orderDetail.barcode}
           </span>
           <span
-           className={`${statusInfo.bgColor} ${statusInfo.textColor} text-xs font-semibold px-3 py-1 rounded-full`}>
+           className={`text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ${statusInfo.bgColor} ${statusInfo.textColor}`}>
            {statusInfo.status}
           </span>
           <button

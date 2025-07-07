@@ -100,26 +100,26 @@ export const getOrderStatus = (sts_kirim: string, kurirdmd?: string | null) => {
  if (sts_kirim === '1') {
   return {
    status: 'Selesai',
-   bgColor: 'bg-green-200',
-   textColor: 'text-green-700',
+   bgColor: 'bg-emerald-200',
+   textColor: 'text-emerald-700',
   };
  } else if (sts_kirim === '0' && kurirdmd != null) {
   return {
    status: 'Dalam Pengantaran',
-   bgColor: 'bg-orange-200',
-   textColor: 'text-orange-700',
+   bgColor: 'bg-yellow-200',
+   textColor: 'text-yellow-700',
   };
  } else if (sts_kirim === '0' && kurirdmd == null) {
   return {
    status: 'Belum Pickup',
-   bgColor: 'bg-gray-200',
-   textColor: 'text-gray-600',
+   bgColor: 'bg-red-200',
+   textColor: 'text-red-700',
   };
  } else {
   return {
    status: 'Status Tidak Diketahui',
-   bgColor: 'bg-gray-400',
-   textColor: 'text-gray-800',
+   bgColor: 'bg-gray-200',
+   textColor: 'text-gray-700',
   };
  }
 };
