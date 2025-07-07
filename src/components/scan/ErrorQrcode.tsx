@@ -7,7 +7,6 @@ interface QrCodeErrorProps {
 export default function QrCodeError({ onScanAgain }: QrCodeErrorProps) {
   return (
     <div className="fixed inset-0 z-50 w-full min-h-screen flex flex-col justify-center items-center bg-black bg-opacity-80">
-      {/* Background image */}
       <div className="absolute inset-0 w-full h-full z-0 flex justify-center">
         <div className="relative w-full max-w-[475px] h-full">
           <Image
