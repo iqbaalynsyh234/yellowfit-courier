@@ -6,7 +6,7 @@ services:
   ports:
    - '3000:3000'
   environment:
-   - NODE_ENV=production
+   - NODE_ENV=development
   env_file:
    - .env
   volumes:
@@ -28,6 +28,8 @@ services:
    timeout: 10s
    retries: 3
    start_period: 40s
+  stdin_open: true
+  tty: true
 
 networks:
  default:

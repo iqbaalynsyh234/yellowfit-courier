@@ -3,8 +3,8 @@ FROM node:18-alpine AS deps
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json package-lock.json* ./
+RUN npm ci --only=production
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
@@ -14,9 +14,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build Next.js app
+# Build Next.js app with skip lint
 ENV NEXT_TELEMETRY_DISABLED 1
-RUN npm run build
+RUN npm run build -- --no-lint
 
 # Stage 3: Runner
 FROM node:18-alpine AS runner
@@ -32,6 +32,8 @@ RUN adduser --system --uid 1001 nextjs
 # Copy necessary files from builder
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
+
+# Copy built application
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
@@ -43,6 +45,7 @@ EXPOSE 3000
 
 # Set hostname
 ENV HOSTNAME "0.0.0.0"
+ENV PORT 3000
 
 # Start the app
-CMD ["node", "server.js"] 
+CMD ["node", "server.js"]

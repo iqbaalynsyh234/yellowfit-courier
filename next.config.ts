@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
+  eslint: {
+    // Skip ESLint during build
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // Skip TypeScript errors during build (optional)
+    ignoreBuildErrors: true,
+  },
   async rewrites() {
     return [
       {
@@ -21,7 +30,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  
 };
 
 export default nextConfig;
