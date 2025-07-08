@@ -7,11 +7,11 @@ export interface CameraModalPagesProps {
 }
 
 export interface FotoPengirimanData {
- paketId: string;
- alamat: string;
- penerima: string;
- telepon: string;
- paket: string;
- catatan?: string;
- foto?: string | null;
+  paketId: string;
+  alamat: string;
+  penerima: string;
+  telepon: string;
+  paket: string;
+  catatan?: string;
+  foto?: string | null;
 }

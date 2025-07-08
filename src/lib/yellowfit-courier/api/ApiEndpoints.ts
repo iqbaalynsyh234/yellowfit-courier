@@ -12,4 +12,5 @@ export const API_ENDPOINTS = {
  V2_ORDER_DETAIL: '/api/v2/order/detail',
  BERANGKAT: '/api/order/detail/berangkat',
  SET_DATA: '/api/v2/order/detail/set-data',
+ SCAN_BARCODE: '/api/v2/order/detail/scan',
 };

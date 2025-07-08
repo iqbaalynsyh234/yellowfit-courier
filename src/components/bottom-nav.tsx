@@ -29,8 +29,6 @@ export default function BottomNavPage() {
       Home
      </span>
     </button>
-
-    {/* Pickup */}
     <button
      className={`flex flex-col items-center flex-1 group ${
       pathname === '/pages/pickup' ? 'text-yellow-400' : 'text-white'
@@ -83,7 +81,6 @@ export default function BottomNavPage() {
       History
      </span>
     </button>
-    {/* Profil */}
     <button
      className={`flex flex-col items-center flex-1 group ${
       pathname === '/pages/profile' ? 'text-yellow-400' : 'text-white'

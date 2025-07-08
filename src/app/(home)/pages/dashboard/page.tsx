@@ -35,7 +35,9 @@ export default function DashboardPage() {
  const [detailError, setDetailError] = useState<string | null>(null);
  const [selectedOrderForPhoto, setSelectedOrderForPhoto] =
   useState<OrderDetailItem | null>(null);
- const currentDate = format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id });
+ const [currentDate] = useState(
+  format(new Date(), 'EEEE, dd MMMM yyyy', { locale: id })
+ );
  const {
   data: orderSummary,
   loading: summaryLoading,
@@ -44,6 +46,7 @@ export default function DashboardPage() {
  const [expandedOrderIds, setExpandedOrderIds] = useState<number[]>([]);
  const [berangkatLoading, setBerangkatLoading] = useState(false);
  const [berangkatError, setBerangkatError] = useState<string | null>(null);
+ const [submittedPenerima, setSubmittedPenerima] = useState<string>('');
 
  useEffect(() => {
   const fetchOrderDetails = async () => {
@@ -119,11 +122,16 @@ export default function DashboardPage() {
      data.error || data.message || 'Failed to process berangkat'
     );
    }
+  
+   // kondisi wa nya ada dia
+   if (data.data?.phone && data.data?.message) {
+    const whatsappUrl = `https://wa.me/${
+     data.data.phone
+    }?text=${encodeURIComponent(data.data.message)}`;
+    window.open(whatsappUrl, '_blank');
+   }
 
    setShowModal(true);
-   //  setTimeout(() => {
-   //   window.location.reload();
-   //  }, 2000);
   } catch (error) {
    console.error('Berangkat error:', error);
    setBerangkatError((error as Error).message || 'Failed to process berangkat');
@@ -148,11 +156,7 @@ export default function DashboardPage() {
     <DetailPengiriman
      paketId={`#${realDetail.barcode}`}
      alamat={realDetail.address}
-     penerima={
-      realDetail.datacustomer
-       ? `${realDetail.datacustomer.fname} ${realDetail.datacustomer.lname}`
-       : realDetail.penerima || '-'
-     }
+     penerima={submittedPenerima || realDetail.penerima || '-'}
      telepon={realDetail.datacustomer?.phone || '-'}
      paket={realDetail.request || '-'}
      datacustomer={
@@ -163,7 +167,10 @@ export default function DashboardPage() {
          }
        : undefined
      }
-     onClose={() => setRealDetail(null)}
+     onClose={() => {
+      setRealDetail(null);
+      setSubmittedPenerima('');
+     }}
     />
     <div className='flex-1' />
    </div>
@@ -359,6 +366,7 @@ export default function DashboardPage() {
         try {
          formData.append('sts_kirim', '1'); // Set status to completed
          const data = await setDeliveryData(formData);
+         setSubmittedPenerima(formData.get('penerima')?.toString() || '');
 
          if (data) {
           setSelectedOrderForPhoto(null);
@@ -382,7 +390,6 @@ export default function DashboardPage() {
            throw new Error(orderData.error || 'Failed to fetch order detail');
           }
           setOrderDetails(orderData.data.data);
-
           // Get delivery details
           const barcode = selectedOrderForPhoto.barcode;
           const detailRes = await fetch(
@@ -397,7 +404,14 @@ export default function DashboardPage() {
           const detailJson = await detailRes.json();
           if (!detailRes.ok)
            throw new Error(detailJson.error || 'Gagal ambil detail pengiriman');
-          setRealDetail(detailJson.data || detailJson);
+
+          // Update realDetail with submitted penerima
+          const detailData = detailJson.data || detailJson;
+          setRealDetail({
+           ...detailData,
+           penerima:
+            formData.get('penerima')?.toString() || detailData.penerima,
+          });
          }
         } catch (err) {
          setDetailError((err as Error).message);
