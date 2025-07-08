@@ -9,7 +9,7 @@ export default function QrCodeErrorPage() {
       </div>
       <div className="font-bold text-xl text-black mb-2 text-center">Kode Barcode Tidak ditemukan</div>
       <div className="text-center text-black/80 mb-6 text-sm">
-        Harap Masukkan kode barcode yang benar
+        Harap Masukkan kode barcode yang benar !
       </div>
       <button className="w-full bg-[#FFD823] hover:bg-yellow-400 text-black font-semibold rounded-xl py-3 text-base transition">
         Kembali
