@@ -8,7 +8,6 @@ import DetailPengiriman from '@/components/DetailPengiriman';
 import HeaderPickupDetail from '@/../features/pickup-detail/components/HeaderPickupDetail';
 import { getPickupDetailByGenerateCode } from '@/lib/yellowfit-courier/api/pickup-detail/pickupdetail';
 import { PickupDetailResponse, PickupBox } from '@/interfaces/PickupDetail';
-import Image from 'next/image';
 import BackgroundimagePage from '@/components/BackgroundImage';
 
 function LoadingState() {
@@ -71,6 +70,22 @@ function PickupDetailContent() {
      <HeaderPickupDetail
       onScanClick={() => setShowCamera(true)}
       generateCode={generate_code}
+      onBarcodeSubmit={async (barcode) => {
+       setLoading(true);
+       try {
+        const token = localStorage.getItem('token') || '';
+        const res = await getPickupDetailByGenerateCode(
+         barcode,
+         tanggal,
+         token
+        );
+        setDetail(res);
+       } catch (error) {
+        console.error('Error fetching pickup detail:', error);
+       } finally {
+        setLoading(false);
+       }
+      }}
      />
      <div className='py-4 mt-2'>
       <div className='font-bold text-white text-base mb-2'>

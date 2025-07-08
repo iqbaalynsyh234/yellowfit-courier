@@ -183,13 +183,13 @@ export default function HistoryPage() {
   <div className='min-h-screen w-full flex flex-col items-center pb-20 overflow-hidden bg-black'>
    <div className='relative w-full max-w-[475px] flex-1 flex flex-col items-center'>
     <div className='absolute inset-0 w-full max-w-[475px]'>
-     <Image
-      src='/assets/yfk/image/bg-img.png'
-      alt='Background'
+    <Image
+     src='/assets/yfk/image/bg-img.png'
+     alt='Background'
       fill
       className='object-cover'
-      style={{ pointerEvents: 'none' }}
-     />
+     style={{ pointerEvents: 'none' }}
+    />
      <div
       className='absolute inset-0'
       style={{

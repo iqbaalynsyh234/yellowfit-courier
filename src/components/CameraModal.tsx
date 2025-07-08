@@ -68,8 +68,8 @@ export default function CameraModalPages({
  const handleCopy = () => {
   if (order?.barcode) {
    navigator.clipboard.writeText(order.barcode.toString());
-   setCopied(true);
-   setTimeout(() => setCopied(false), 1200);
+  setCopied(true);
+  setTimeout(() => setCopied(false), 1200);
   }
  };
 

@@ -3,6 +3,7 @@ import { API_ENDPOINTS } from '../ApiEndpoints';
 import type {
  Root as OrderDetailResponse,
  Daum as OrderSummaryResponse,
+ ScanResponse,
 } from '@/interfaces/Dashboard';
 
 export interface DashboardStats {
@@ -150,5 +151,39 @@ export const setDeliveryData = async (formData: FormData) => {
  } catch (error) {
   console.error('Set delivery data error:', error);
   throw error;
+ }
+};
+
+export const scanBarcode = async (barcode: string): Promise<ScanResponse> => {
+ try {
+  const token = localStorage.getItem('token');
+  if (!token) {
+   throw new Error('No authentication token found');
+  }
+
+  const response = await fetch(
+   `/api/scan-barcode?barcode=${encodeURIComponent(barcode)}`,
+   {
+    method: 'POST',
+    headers: {
+     Authorization: `Bearer ${token}`,
+     Accept: 'application/json',
+    },
+   }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+   throw new Error(data.error || 'Failed to scan barcode');
+  }
+
+  return data;
+ } catch (error: unknown) {
+  console.error('Scan error:', error);
+  if ((error as { message?: string })?.message?.includes('not found')) {
+   throw new Error('Barcode tidak ditemukan');
+  }
+  throw new Error((error as Error)?.message || 'Failed to scan barcode');
  }
 };

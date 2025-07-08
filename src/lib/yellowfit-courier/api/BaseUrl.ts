@@ -4,8 +4,7 @@ import { API_ENDPOINTS } from './ApiEndpoints';
 export const BASE_URL = 'https://api.yellowfitkitchen.com';
 export const MOCK_BASE_URL = process.env.NEXT_PUBLIC_MOCK_BASE_URL;
 export const NEXT_PUBLIC_PROD_URL = process.env.NEXT_PUBLIC_PROD_URL || '';
-export const EXTERNAL_API_URL =
- process.env.NEXT_PUBLIC_EXTERNAL_API_URL || 'https://api.yellowfitkitchen.com';
+export const EXTERNAL_API_URL = process.env.NEXT_PUBLIC_EXTERNAL_API_URL || 'https://api.yellowfitkitchen.com';
 
 const axiosInstance = axios.create({
  baseURL: BASE_URL,
