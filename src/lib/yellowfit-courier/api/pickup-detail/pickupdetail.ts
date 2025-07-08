@@ -1,19 +1,5 @@
 import { PickupDetailResponse } from '@/interfaces/PickupDetail';
 
-const Tugas = {
- getTugasList: async (tanggal: string, token: string): Promise<any> => {
-  const query = tanggal ? `?tanggal=${encodeURIComponent(tanggal)}` : '';
-  const response = await fetch(`/api/tugas${query}`, {
-   method: 'GET',
-   headers: {
-    Accept: 'application/json',
-    Authorization: `Bearer ${token}`,
-   },
-  });
-  return await response.json();
- },
-};
-
 export interface PickupDetailRequest {
  generate_code: string;
  tanggal: string;

@@ -14,7 +14,7 @@ function LoadingState() {
   <div className='min-h-screen bg-black bg-opacity-80 flex items-center justify-center'>
    <div className='text-white text-center'>
     <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4'></div>
-    Loading...
+    Loading Data ....
    </div>
   </div>
  );
@@ -22,8 +22,8 @@ function LoadingState() {
 
 function PickupDetailContent() {
  const searchParams = useSearchParams();
- const generate_code = searchParams.get('generate_code') || '';
- const tanggal = searchParams.get('tanggal') || '';
+ const generate_code = searchParams.get('generate_code') || '-';
+ const tanggal = searchParams.get('tanggal') || '-';
 
  const [detail, setDetail] = useState<PickupDetailResponse | null>(null);
  const [loading, setLoading] = useState(true);
@@ -153,14 +153,32 @@ function PickupDetailContent() {
           {badgeLabel}
          </span>
         </span>
-        <span className='inline-block text-white text-xs font-bold rounded-full px-3 py-1 mb-1 w-fit'>
-         # {item.id}
+        <span
+         className='inline-block text-white text-xs font-bold rounded-full px-3 py-1 mb-1 w-fit cursor-pointer hover:bg-gray-700'
+         onClick={() => {
+          navigator.clipboard.writeText(item.barcode.toString());
+         }}
+         title='Click to copy barcode'>
+         {item.barcode}
         </span>
-        <div className='text-white font-bold text-lg tracking-wide'>
-         {item.name || item.penerima || '-'}
-        </div>
-        <div className='text-gray-300 text-sm'>
-         {item.address || item.alamat || ''}
+        <div className='flex flex-col'>
+         <div className='text-white font-bold text-lg tracking-wide'>
+          {item.datacustomer?.fname || item.penerima || '-'}
+         </div>
+         <div className='text-gray-300 text-sm'>
+          {item.address || item.alamat || '-'}
+         </div>
+         <div className='text-gray-400 text-xs'>{item.kodeproduksi}</div>
+         {(item.request || item.custom_request) && (
+          <div className='text-yellow-400 text-sm mt-1 bg-yellow-400/10 p-2 rounded'>
+           Request: {item.request || item.custom_request || '-'}
+          </div>
+         )}
+         {item.datakurirdmd && (
+          <div className='text-gray-400 text-sm mt-1'>
+           Kurir: {item.datakurirdmd.name}
+          </div>
+         )}
         </div>
        </div>
       );
