@@ -30,6 +30,10 @@ export default function TugasCourierPage() {
   fetchTugas();
  }, []);
 
+ const HanddleToCopyClipboard = (barcode: string) => {
+  navigator.clipboard.writeText(barcode);
+ };
+
  useEffect(() => {
   const today = new Date();
   setCurrentDate(
@@ -47,43 +51,34 @@ export default function TugasCourierPage() {
  };
 
  return (
-  <div className='min-h-screen w-full bg-black relative pb-20 overflow-hidden'>
-   <div
-    className='absolute'
-    style={{
-     width: '100%',
-     height: 812,
-     top: '50%',
-     left: '50%',
-     transform: 'translate(-50%, -50%)',
-     opacity: 0.8,
-     zIndex: 0,
-    }}>
+  <main className='min-h-screen w-full bg-black relative pb-20 overflow-hidden'>
+   <div className='fixed inset-0 w-[475px] mx-auto'>
     <Image
      src='/assets/yfk/image/bg-img.png'
      alt='Background'
      width={475}
-     height={912}
-     style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+     height={812}
+     className='object-cover w-full h-full'
      priority
     />
-    <div
-     style={{
-      position: 'absolute',
-      inset: 0,
-      background: 'rgba(0,0,0,0.6)',
-      zIndex: 1,
-     }}
-    />
+    <div className='absolute inset-0 bg-black/60' />
    </div>
-   <div className='w-full relative z-10 flex flex-col'>
-    <div className='w-full bg-black'>
+
+   {/* Content */}
+   <div className='relative z-10'>
+    <div className='bg-[#FFD823] w-full max-w-[475px] mx-auto px-4 pt-4 pb-4'>
      <HeaderDashboardPage />
     </div>
+
     <div className='w-full max-w-[475px] flex-1 px-4 pt-4 mx-auto'>
      <div className='text-white font-bold text-lg mb-2 mt-2'>{currentDate}</div>
      {loading ? (
-      <div className='text-gray-400 text-center mt-8'>Loading...</div>
+      <div className='flex items-center justify-center min-h-[200px]'>
+       <div className='text-white text-center'>
+        <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4'></div>
+        Loading Data...
+       </div>
+      </div>
      ) : error ? (
       <div className='text-red-500 text-center mt-8'>{error}</div>
      ) : !Array.isArray(tugasList) ? (
@@ -100,8 +95,10 @@ export default function TugasCourierPage() {
         key={item.id}
         className='bg-gray-800 rounded-xl p-4 mb-3 shadow'>
         <div className='flex items-center justify-between mb-1'>
-         <span className='text-xs text-gray-400 font-mono'>
-          #{item.generate_code}
+         <span
+          className='text-xs text-gray-400 font-mono cursor-pointer hover:text-gray-300'
+          onClick={() => HanddleToCopyClipboard(item.barcode.toString())}>
+          {item.barcode}
          </span>
          <span
           className={`text-xs font-semibold px-3 py-1 rounded-full ${
@@ -121,7 +118,11 @@ export default function TugasCourierPage() {
      )}
     </div>
    </div>
-   <BottomNavPage />
-  </div>
+
+   {/* Bottom Navigation */}
+   <div className=' max-w-[485px] fixed bottom-0 left-0 right-0 z-50'>
+    <BottomNavPage />
+   </div>
+  </main>
  );
 }

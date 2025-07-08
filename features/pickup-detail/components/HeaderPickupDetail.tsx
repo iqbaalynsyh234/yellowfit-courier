@@ -13,7 +13,7 @@ const HeaderPickupDetail: React.FC<HeaderPickupDetailProps> = ({
 }) => {
  const router = useRouter();
  return (
-  <div className='bg-[#FFD823] w-full max-w-[470px] mx-auto px-4 pt-4 pb-4 flex flex-col gap-2 rounded-none'>
+  <div className='bg-[#FFD823] w-full max-w-[475px] mx-auto px-4 pt-4 pb-4 flex flex-col gap-2 rounded-none'>
    <div className='flex items-center gap-2 mb-2'>
     <button
      onClick={() => router.back()}
@@ -59,7 +59,6 @@ const HeaderPickupDetail: React.FC<HeaderPickupDetailProps> = ({
       />
      </svg>
     </button>
-    {/* Tombol scan hanya trigger scan, tidak ke detail pengantaran */}
     <button
      className='bg-white rounded-full p-2 h-12 w-12 flex items-center justify-center border border-gray-300'
      onClick={onScanClick}
