@@ -152,7 +152,7 @@ npm run start
 ### Docker Production
 
 ```bash
-# Build production image
+# Build production imagee
 docker build -t yfk-courier-web:latest .
 
 # Run docker container
