@@ -1,6 +1,15 @@
 import { API_ENDPOINTS } from '../ApiEndpoints';
 import { axiosExternalInstance } from '../BaseUrl';
 
+interface ApiError {
+ response?: {
+  data?: {
+   message?: string;
+  };
+ };
+ message: string;
+}
+
 export interface OtpRequest {
  phone: string;
  otp: string;
@@ -28,10 +37,11 @@ export const verifyOtpApi = async (
    otpData
   );
   return response.data;
- } catch (error: any) {
+ } catch (error: unknown) {
   console.error('OTP verification error:', error);
+  const err = error as ApiError;
   const errorMessage =
-   error.response?.data?.message || error.message || 'OTP verification failed';
+   err.response?.data?.message || err.message || 'OTP verification failed';
   return {
    success: false,
    message: errorMessage,
@@ -55,10 +65,11 @@ export const validateOtpApi = async ({
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || 'OTP validation failed');
   return data;
- } catch (error: any) {
+ } catch (error: unknown) {
+  const err = error as ApiError;
   return {
    success: false,
-   message: error.message || 'OTP validation failed',
+   message: err.message || 'OTP validation failed',
   };
  }
 };
