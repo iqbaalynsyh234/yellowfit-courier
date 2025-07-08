@@ -4,11 +4,14 @@ import AlreadyExits from '@/components/allert/AlreadyExits';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { scanBarcode } from '@/lib/yellowfit-courier/api/dashboard';
+import { useRouter } from 'next/navigation';
 
 export default function HeaderDashboardPage() {
+ const router = useRouter();
  const [showScan, setShowScan] = useState(false);
  const [showError, setShowError] = useState(false);
  const [showAlreadyPickup, setShowAlreadyPickup] = useState(false);
+ const [pickupMessage, setPickupMessage] = useState('');
  const [barcode, setBarcode] = useState('');
  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
 
@@ -33,9 +36,12 @@ export default function HeaderDashboardPage() {
     result.message.includes('Box sudah di Pickup')
    ) {
     setShowAlreadyPickup(true);
+    setPickupMessage(result.message);
     setShowError(false);
    } else if (result.code === 200) {
-    // Handle successful scan
+    // Navigate to pickup page on successful scan
+    const today = new Date().toISOString().split('T')[0];
+    router.push(`/pages/pickup?tanggal=${today}`);
     setShowError(false);
     setShowAlreadyPickup(false);
    } else {
@@ -73,7 +79,10 @@ export default function HeaderDashboardPage() {
  if (showAlreadyPickup) {
   return (
    <div className='fixed inset-0 z-[9999] w-full h-full flex items-center justify-center bg-black bg-opacity-80'>
-    <AlreadyExits onCancel={resetAlerts} />
+    <AlreadyExits
+     onCancel={resetAlerts}
+     message={pickupMessage}
+    />
    </div>
   );
  }

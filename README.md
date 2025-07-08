@@ -159,6 +159,9 @@ docker build -t yfk-courier-web:latest .
 docker-compose -f docker-compose.dev.yml up --build
 
 
+#Docker Running Compose and server stop to bash :
+docker-compose -f docker-compose.dev.yml start
+
 ```bash
 # Production deployment
 docker-compose -f docker-compose.yml up -d

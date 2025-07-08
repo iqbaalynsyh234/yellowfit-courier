@@ -24,6 +24,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
           position: "fixed",
           top: "50%",
           left: "50%",
+          filter: "blur(5px)",
           transform: "translate(-50%, -50%)",
           zIndex: 9999,
           background: `url('/assets/yfk/image/bg-img.png') center/cover no-repeat`,
