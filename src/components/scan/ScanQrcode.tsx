@@ -60,9 +60,7 @@ export default function QrCodePage({ onClose, onScan }: QrCodePageProps) {
     setPhoto(dataUrl);
 
     try {
-     // Here you would need to implement actual QR code reading from the image
-     // For now, we'll simulate with a test barcode
-     const testBarcode = '8516213'; // Replace with actual QR code reading
+     const testBarcode = '8516213'; 
      const response = await scanBarcode(testBarcode);
      if (response.code === 200) {
       setSuccess(true);

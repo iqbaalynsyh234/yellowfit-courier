@@ -4,11 +4,13 @@ interface AlreadyExitsProps {
   name: string;
   phone: string;
  };
+ message?: string;
 }
 
 export default function AlreadyExits({
  onCancel,
  courierInfo,
+ message,
 }: AlreadyExitsProps) {
  return (
   <div className='max-w-xs mx-auto bg-white rounded-2xl shadow-lg p-6 flex flex-col items-center'>
@@ -36,7 +38,7 @@ export default function AlreadyExits({
     </svg>
    </div>
    <div className='font-bold text-xl text-black mb-2 text-center'>
-    Box sudah di Pickup oleh Kurir
+    {message || 'Box sudah di Pickup oleh Kurir'}
     <br />
     {courierInfo
      ? `${courierInfo.name} (${courierInfo.phone})`
