@@ -7,10 +7,14 @@ import ScanBarcodePage from '../../../../../features/history/components/ScanBarc
 import {
  getOrderHistoryApi,
  getOrderHistoryDetailApi,
+ scanBarcode,
 } from '@/lib/yellowfit-courier/api/history/HistoryApi';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import { HistoryItem, DetailData } from '@/interfaces/History';
+import QrCodeError from '@/components/allert/QrCodeError';
+import AlreadyExits from '@/components/allert/AlreadyExits';
+import SuccesQrcode from '@/components/scan/SuccesQrcode';
 const getDeliveryStatus = (
  sts_kirim: string,
  datakurirdmd: HistoryItem['datakurirdmd']
@@ -41,7 +45,6 @@ const getDeliveryStatus = (
  }
 };
 
-// Komponen untuk render icon berdasarkan type
 const StatusIcon = ({ type }: { type: string }) => {
  switch (type) {
   case 'success':
@@ -122,6 +125,10 @@ export default function HistoryPage() {
  const [loading, setLoading] = useState(false);
  const [error, setError] = useState<string | null>(null);
  const [loadingDetail, setLoadingDetail] = useState(false);
+ const [showError, setShowError] = useState(false);
+ const [showAlreadyPickup, setShowAlreadyPickup] = useState(false);
+ const [showSuccess, setShowSuccess] = useState(false);
+ const [pickupMessage, setPickupMessage] = useState('');
 
  useEffect(() => {
   const fetchHistory = async () => {
@@ -135,6 +142,7 @@ export default function HistoryPage() {
     const completedOrders = data.data.data.filter(
      (item: HistoryItem) => item.sts_kirim === '1'
     );
+    // console.log(completedOrders);
     setHistory(completedOrders);
    } catch (err: unknown) {
     setError((err as Error)?.message || 'Gagal mengambil data history');
@@ -157,6 +165,76 @@ export default function HistoryPage() {
    setLoadingDetail(false);
   }
  };
+
+ const handleBarcodeSubmit = async (inputBarcode: string) => {
+  try {
+   const result = await scanBarcode(inputBarcode);
+   console.log('result scan :', result);
+   if (
+    result.code === 401 &&
+    result.status === 'error' &&
+    result.message.includes('Box sudah di Pickup')
+   ) {
+    setShowAlreadyPickup(true);
+    setPickupMessage(result.message);
+    setShowError(false);
+    setShowSuccess(false);
+   } else if (result.code === 200) {
+    setShowSuccess(true);
+    setShowError(false);
+    setShowAlreadyPickup(false);
+   } else {
+    setShowError(true);
+    setShowAlreadyPickup(false);
+    setShowSuccess(false);
+   }
+  } catch (error) {
+   console.error('Scan error:', error);
+   setShowError(true);
+   setShowAlreadyPickup(false);
+   setShowSuccess(false);
+  }
+ };
+
+ const resetAlerts = () => {
+  setShowError(false);
+  setShowAlreadyPickup(false);
+  setShowSuccess(false);
+  setSearch('');
+ };
+
+ const handleInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === 'Enter' && search.trim()) {
+   handleBarcodeSubmit(search.trim());
+  }
+ };
+
+ if (showError) {
+  return (
+   <div className='fixed inset-0 z-[9999] w-full h-full flex items-center justify-center bg-black bg-opacity-80'>
+    <QrCodeError onScanAgain={resetAlerts} />
+   </div>
+  );
+ }
+
+ if (showAlreadyPickup) {
+  return (
+   <div className='fixed inset-0 z-[9999] w-full h-full flex items-center justify-center bg-black bg-opacity-80'>
+    <AlreadyExits
+     onCancel={resetAlerts}
+     message={pickupMessage}
+    />
+   </div>
+  );
+ }
+
+ if (showSuccess) {
+  return (
+   <div className='fixed inset-0 z-[9999] w-full h-full flex items-center justify-center bg-black bg-opacity-80'>
+    <SuccesQrcode onScanAgain={resetAlerts} />
+   </div>
+  );
+ }
 
  if (detailData) {
   return (
@@ -183,13 +261,13 @@ export default function HistoryPage() {
   <div className='min-h-screen w-full flex flex-col items-center pb-20 overflow-hidden bg-black'>
    <div className='relative w-full max-w-[475px] flex-1 flex flex-col items-center'>
     <div className='absolute inset-0 w-full max-w-[475px]'>
-    <Image
-     src='/assets/yfk/image/bg-img.png'
-     alt='Background'
+     <Image
+      src='/assets/yfk/image/bg-img.png'
+      alt='Background'
       fill
       className='object-cover'
-     style={{ pointerEvents: 'none' }}
-    />
+      style={{ pointerEvents: 'none' }}
+     />
      <div
       className='absolute inset-0'
       style={{
@@ -202,6 +280,7 @@ export default function HistoryPage() {
      <ScanBarcodePage
       value={search}
       onChange={(e) => setSearch(e.target.value)}
+      onKeyPress={handleInputKeyPress}
      />
      <div className='w-full flex-1 px-4 pt-4'>
       {loading ? (

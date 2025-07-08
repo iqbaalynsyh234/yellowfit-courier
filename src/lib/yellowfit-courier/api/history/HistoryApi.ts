@@ -1,10 +1,25 @@
-import { HistoryItem } from '@/interfaces/History';
+import { HistoryResponse, ScanResponse } from '@/interfaces/History';
 
-interface HistoryResponse {
- data: {
-  data: HistoryItem[];
- };
-}
+export const scanBarcode = async (barcode: string): Promise<ScanResponse> => {
+ const token = localStorage.getItem('token');
+ if (!token) throw new Error('No authentication token found');
+
+ const response = await fetch('/api/v2/order/detail/scan', {
+  method: 'POST',
+  headers: {
+   Authorization: `Bearer ${token}`,
+   'Content-Type': 'application/json',
+   Accept: 'application/json',
+  },
+  body: JSON.stringify({ barcode }),
+ });
+
+ const data = await response.json();
+ if (!response.ok) {
+  throw new Error(data.message || 'Failed to scan barcode');
+ }
+ return data;
+};
 
 export const getOrderHistoryApi = async (
  tanggal?: string
