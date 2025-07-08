@@ -4,26 +4,29 @@ WORKDIR /app
 
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+RUN npm ci --only=production && npm cache clean --force
 
 # Stage 2: Builder
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
+# Copy package files for dev dependencies
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Copy source code
 COPY . .
 
-# Build Next.js app with skip lint
-ENV NEXT_TELEMETRY_DISABLED 1
-RUN npm run build -- --no-lint
+# Build Next.js app
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
 
 # Stage 3: Runner
 FROM node:18-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Add non-root user for security
 RUN addgroup --system --gid 1001 nodejs
@@ -43,9 +46,9 @@ USER nextjs
 # Expose port
 EXPOSE 3000
 
-# Set hostname
-ENV HOSTNAME "0.0.0.0"
-ENV PORT 3000
+# Set environment variables
+ENV HOSTNAME="0.0.0.0"
+ENV PORT=3000
 
-# Start the app
+# Start running apps 
 CMD ["node", "server.js"]
