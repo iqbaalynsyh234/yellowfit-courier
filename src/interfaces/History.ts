@@ -52,3 +52,14 @@ export interface HistoryResponse {
 export interface DetailResponse {
  data: DetailData;
 }
+
+export interface ScanResponse {
+ code: number;
+ status: string;
+ message: string;
+ data?: {
+  barcode: string;
+  status: string;
+  message?: string;
+ };
+}
