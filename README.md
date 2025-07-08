@@ -155,15 +155,9 @@ npm run start
 # Build production image
 docker build -t yfk-courier-web:latest .
 
-# Run production container
-docker run -d \
-  --name yfk-courier-web \
-  -p 3000:3000 \
-  --env-file .env \
-  yfk-courier-web:latest
-```
+# Run docker container
+docker-compose -f docker-compose.dev.yml up --build
 
-### Docker Compose Production
 
 ```bash
 # Production deployment
