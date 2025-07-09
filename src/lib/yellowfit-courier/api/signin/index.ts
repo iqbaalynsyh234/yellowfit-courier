@@ -14,18 +14,16 @@ export const signinApi = async (credentials: { phone: string }) => {
   }
 
   const data = await response.json();
-  // console.log('Login response:', data);
 
   if (data.token) {
-   // Store in localStorage
    localStorage.setItem('token', data.token);
    localStorage.setItem('user', JSON.stringify(data.user || {}));
-   localStorage.setItem('loginTime', new Date().toISOString());
+   localStorage.setItem('expire_time', data.expire_time);
 
-   // Store in cookies
-   document.cookie = `token=${data.token}; path=/; max-age=${
-    7 * 24 * 60 * 60
-   }; SameSite=Strict`;
+   // Store in cookies with proper expiration
+   const expireDate = new Date(data.expire_time);
+   const maxAge = Math.floor((expireDate.getTime() - Date.now()) / 1000);
+   document.cookie = `token=${data.token}; path=/; max-age=${maxAge}; SameSite=Strict`;
   }
 
   return data;
@@ -37,11 +35,10 @@ export const signinApi = async (credentials: { phone: string }) => {
 };
 
 // Fungsi untuk logout
-export const logoutApi = () => {
- // Clear localStorage
+export const logoutApi = () => {    
  localStorage.removeItem('token');
  localStorage.removeItem('user');
- localStorage.removeItem('loginTime');
+ localStorage.removeItem('expire_time');
 
  // Clear cookies
  document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
@@ -52,19 +49,19 @@ export const isAuthenticated = (): boolean => {
  if (typeof window === 'undefined') return false;
 
  const token = localStorage.getItem('token');
- const loginTime = localStorage.getItem('loginTime');
+ const expireTime = localStorage.getItem('expire_time');
 
- if (!token || !loginTime) return false;
+ if (!token || !expireTime) return false;
 
- // Check if token is expired (7 days)
- const loginDate = new Date(loginTime);
+ // Check if token is expired
+ const expireDate = new Date(expireTime);
  const now = new Date();
- const daysDiff = (now.getTime() - loginDate.getTime()) / (1000 * 3600 * 24);
 
- if (daysDiff > 7) {
+ if (now >= expireDate) {
   logoutApi();
   return false;
  }
+
  return true;
 };
 

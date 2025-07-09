@@ -5,20 +5,26 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import HeaderDashboardPage from '../../../../../features/dashboard/components/HeaderDashbord';
 import { getTugasList } from '@/lib/yellowfit-courier/api/tugas/Tugas';
-import { TugasResponse } from '@/interfaces/Tugas';
+import { TugasResponse, TugasApiResponse } from '@/interfaces/Tugas';
+import Pagination from '@/components/Pagination';
 
 export default function TugasCourierPage() {
  const [tugasList, setTugasList] = useState<TugasResponse[]>([]);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState<string | null>(null);
  const [currentDate, setCurrentDate] = useState('');
+ const [currentPage, setCurrentPage] = useState(1);
+ const [totalPages, setTotalPages] = useState(1);
+ const [apiResponse, setApiResponse] = useState<TugasApiResponse | null>(null);
 
  useEffect(() => {
   const fetchTugas = async () => {
    try {
     setLoading(true);
-    const data = await getTugasList();
-    setTugasList(Array.isArray(data) ? data : []);
+    const response = await getTugasList(currentPage);
+    setApiResponse(response);
+    setTugasList(response.data.data);
+    setTotalPages(response.data.last_page);
    } catch (err) {
     console.error('Error in fetchTugas:', err);
     setError('Failed to fetch tasks');
@@ -28,7 +34,13 @@ export default function TugasCourierPage() {
   };
 
   fetchTugas();
- }, []);
+ }, [currentPage]);
+
+ const handlePageChange = (newPage: number) => {
+  if (newPage >= 1 && newPage <= totalPages) {
+   setCurrentPage(newPage);
+  }
+ };
 
  const HanddleToCopyClipboard = (barcode: string) => {
   navigator.clipboard.writeText(barcode);
@@ -90,36 +102,43 @@ export default function TugasCourierPage() {
        Tidak ada tugas hari ini.
       </div>
      ) : (
-      tugasList.map((item) => (
-       <div
-        key={item.id}
-        className='bg-gray-800 rounded-xl p-4 mb-3 shadow'>
-        <div className='flex items-center justify-between mb-1'>
-         <span
-          className='text-xs text-gray-400 font-mono cursor-pointer hover:text-gray-300'
-          onClick={() => HanddleToCopyClipboard(item.barcode.toString())}>
-          {item.barcode}
-         </span>
-         <span
-          className={`text-xs font-semibold px-3 py-1 rounded-full ${
-           item.sesi === 'L'
-            ? 'bg-[#FFD823] text-black'
-            : 'bg-orange-500 text-white'
-          }`}>
-          {getSesiLabel(item.sesi)}
-         </span>
+      <>
+       {tugasList.map((item) => (
+        <div
+         key={item.id}
+         className='bg-gray-800 rounded-xl p-4 mb-3 shadow'>
+         <div className='flex items-center justify-between mb-1'>
+          <span
+           className='text-xs text-gray-400 font-mono cursor-pointer hover:text-gray-300'
+           onClick={() => HanddleToCopyClipboard(item.barcode.toString())}>
+           {item.barcode}
+          </span>
+          <span
+           className={`text-xs font-semibold px-3 py-1 rounded-full ${
+            item.sesi === 'L'
+             ? 'bg-[#FFD823] text-black'
+             : 'bg-orange-500 text-white'
+           }`}>
+           {getSesiLabel(item.sesi)}
+          </span>
+         </div>
+         <div className='font-bold text-white text-sm mb-1'>
+          {item.datacustomer.fname} {item.datacustomer.lname}
+         </div>
+         <div className='text-xs text-gray-300 mb-1'>{item.address}</div>
         </div>
-        <div className='font-bold text-white text-sm mb-1'>
-         {item.datacustomer.fname} {item.datacustomer.lname}
-        </div>
-        <div className='text-xs text-gray-300 mb-1'>{item.address}</div>
-       </div>
-      ))
+       ))}
+       {apiResponse && (
+        <Pagination
+         currentPage={currentPage}
+         totalPages={totalPages}
+         onPageChange={handlePageChange}
+        />
+       )}
+      </>
      )}
     </div>
    </div>
-
-   {/* Bottom Navigation */}
    <div className=' max-w-[485px] fixed bottom-0 left-0 right-0 z-50'>
     <BottomNavPage />
    </div>

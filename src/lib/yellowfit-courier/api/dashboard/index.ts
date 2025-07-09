@@ -34,7 +34,8 @@ export const getDashboardDataApi = async (): Promise<DashboardResponse> => {
 };
 
 export const getOrderDetailApi = async (
- tanggal?: string
+ tanggal?: string,
+ page: number = 1
 ): Promise<OrderDetailResponse> => {
  try {
   const token = localStorage.getItem('token');
@@ -42,8 +43,11 @@ export const getOrderDetailApi = async (
    throw new Error('No authentication token found');
   }
 
-  const query = tanggal ? `?tanggal=${encodeURIComponent(tanggal)}` : '';
-  const response = await fetch(`/api/dashboard${query}`, {
+  const queryParams = new URLSearchParams();
+  if (tanggal) queryParams.append('tanggal', tanggal);
+  queryParams.append('page', page.toString());
+
+  const response = await fetch(`/api/dashboard?${queryParams.toString()}`, {
    method: 'GET',
    headers: {
     Authorization: `Bearer ${token}`,
@@ -56,7 +60,6 @@ export const getOrderDetailApi = async (
    throw new Error(data.error || 'Failed to fetch order detail');
   }
 
-  console.log('response order detail:', data);
   return data;
  } catch (error: unknown) {
   console.error('Order detail error:', error);

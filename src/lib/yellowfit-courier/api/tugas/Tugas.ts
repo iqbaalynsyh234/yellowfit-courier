@@ -1,8 +1,10 @@
 import { API_ENDPOINTS } from '../ApiEndpoints';
 import { BASE_URL } from '../BaseUrl';
-import { TugasResponse, TugasApiResponse } from '@/interfaces/Tugas';
+import { TugasApiResponse } from '@/interfaces/Tugas';
 
-export const getTugasList = async (): Promise<TugasResponse[]> => {
+export const getTugasList = async (
+ page: number = 20
+): Promise<TugasApiResponse> => {
  try {
   const token =
    typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -14,7 +16,10 @@ export const getTugasList = async (): Promise<TugasResponse[]> => {
   const today = new Date();
   const tanggal = today.toISOString().split('T')[0];
 
-  const queryParams = new URLSearchParams({ tanggal });
+  const queryParams = new URLSearchParams({
+   tanggal,
+   page: page.toString(),
+  });
   const apiUrl = `${BASE_URL}${API_ENDPOINTS.TUGAS}?${queryParams}`;
 
   const response = await fetch(apiUrl, {
@@ -32,7 +37,7 @@ export const getTugasList = async (): Promise<TugasResponse[]> => {
    throw new Error(responseData.status || 'Failed to fetch tugas list');
   }
 
-  return responseData.data?.data || [];
+  return responseData;
  } catch (error) {
   console.error('Error fetching tugas list:', error);
   throw error;

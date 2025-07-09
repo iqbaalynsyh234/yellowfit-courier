@@ -15,6 +15,8 @@ import { HistoryItem, DetailData } from '@/interfaces/History';
 import QrCodeError from '@/components/allert/QrCodeError';
 import AlreadyExits from '@/components/allert/AlreadyExits';
 import SuccesQrcode from '@/components/scan/SuccesQrcode';
+import Pagination from '@/components/Pagination';
+
 const getDeliveryStatus = (
  sts_kirim: string,
  datakurirdmd: HistoryItem['datakurirdmd']
@@ -129,6 +131,8 @@ export default function HistoryPage() {
  const [showAlreadyPickup, setShowAlreadyPickup] = useState(false);
  const [showSuccess, setShowSuccess] = useState(false);
  const [pickupMessage, setPickupMessage] = useState('');
+ const [currentPage, setCurrentPage] = useState(1);
+ const [totalPages, setTotalPages] = useState(1);
 
  useEffect(() => {
   const fetchHistory = async () => {
@@ -136,14 +140,14 @@ export default function HistoryPage() {
    setError(null);
    try {
     const today = format(new Date(), 'yyyy-MM-dd');
-    const data = await getOrderHistoryApi(today);
+    const data = await getOrderHistoryApi(today, currentPage);
 
     // Filter hanya data dengan sts_kirim = "1" (Selesai)
     const completedOrders = data.data.data.filter(
      (item: HistoryItem) => item.sts_kirim === '1'
     );
-    // console.log(completedOrders);
     setHistory(completedOrders);
+    setTotalPages(data.data.last_page);
    } catch (err: unknown) {
     setError((err as Error)?.message || 'Gagal mengambil data history');
    } finally {
@@ -151,7 +155,12 @@ export default function HistoryPage() {
    }
   };
   fetchHistory();
- }, []);
+ }, [currentPage]);
+
+ const handlePageChange = (newPage: number) => {
+  setCurrentPage(newPage);
+  setOpenIdx(null); // Reset expanded item when changing page
+ };
 
  const handleDetail = async (barcode: string | number) => {
   setLoadingDetail(true);
@@ -292,78 +301,85 @@ export default function HistoryPage() {
         Tidak ada data history yang selesai hari ini.
        </div>
       ) : (
-       history.map((item, idx) => {
-        const isOpen = openIdx === idx;
-        const customer = item.datacustomer;
-        const status = getDeliveryStatus(item.sts_kirim, item.datakurirdmd);
+       <>
+        {history.map((item, idx) => {
+         const isOpen = openIdx === idx;
+         const customer = item.datacustomer;
+         const status = getDeliveryStatus(item.sts_kirim, item.datakurirdmd);
 
-        return (
-         <div
-          key={item.id}
-          className='bg-[#232323] rounded-2xl p-4 flex flex-col gap-2 shadow relative mb-4'>
-          <div className='flex items-center justify-between mb-1'>
-           <span className='text-xs text-gray-400 font-mono'>
-            # {item.barcode || item.id}
-           </span>
-           <span
-            className='text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ml-auto'
-            style={{
-             backgroundColor: status.bgColor,
-             color: status.textColor,
-            }}>
-            <StatusIcon type={status.iconType} />
-            {status.label}
-           </span>
-           <button
-            className='ml-2'
-            onClick={() => setOpenIdx(isOpen ? null : idx)}
-            aria-label={isOpen ? 'Sembunyikan detail' : 'Tampilkan detail'}>
-            {isOpen ? (
-             <svg
-              width='20'
-              height='20'
-              fill='none'
-              viewBox='0 0 24 24'>
-              <path
-               d='M6 15l6-6 6 6'
-               stroke='#fff'
-               strokeWidth='2'
-               strokeLinecap='round'
-               strokeLinejoin='round'
-              />
-             </svg>
-            ) : (
-             <svg
-              width='20'
-              height='20'
-              fill='none'
-              viewBox='0 0 24 24'>
-              <path
-               d='M6 9l6 6 6-6'
-               stroke='#fff'
-               strokeWidth='2'
-               strokeLinecap='round'
-               strokeLinejoin='round'
-              />
-             </svg>
-            )}
-           </button>
+         return (
+          <div
+           key={item.id}
+           className='bg-[#232323] rounded-2xl p-4 flex flex-col gap-2 shadow relative mb-4'>
+           <div className='flex items-center justify-between mb-1'>
+            <span className='text-xs text-gray-400 font-mono'>
+             # {item.barcode || item.id}
+            </span>
+            <span
+             className='text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ml-auto'
+             style={{
+              backgroundColor: status.bgColor,
+              color: status.textColor,
+             }}>
+             <StatusIcon type={status.iconType} />
+             {status.label}
+            </span>
+            <button
+             className='ml-2'
+             onClick={() => setOpenIdx(isOpen ? null : idx)}
+             aria-label={isOpen ? 'Sembunyikan detail' : 'Tampilkan detail'}>
+             {isOpen ? (
+              <svg
+               width='20'
+               height='20'
+               fill='none'
+               viewBox='0 0 24 24'>
+               <path
+                d='M6 15l6-6 6 6'
+                stroke='#fff'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+               />
+              </svg>
+             ) : (
+              <svg
+               width='20'
+               height='20'
+               fill='none'
+               viewBox='0 0 24 24'>
+               <path
+                d='M6 9l6 6 6-6'
+                stroke='#fff'
+                strokeWidth='2'
+                strokeLinecap='round'
+                strokeLinejoin='round'
+               />
+              </svg>
+             )}
+            </button>
+           </div>
+           <div className='font-bold text-white text-sm mb-1'>
+            {customer ? `${customer.fname} ${customer.lname}` : item.penerima}
+           </div>
+           <div className='text-xs text-gray-300 mb-1'>{item.address}</div>
+           {isOpen && (
+            <button
+             className='w-full bg-[#FFD823] text-black font-bold py-3 rounded-xl text-center text-base shadow-lg mt-2'
+             onClick={() => handleDetail(item.barcode || item.id)}
+             disabled={loadingDetail}>
+             {loadingDetail ? 'Loading...' : 'Detail Pengiriman'}
+            </button>
+           )}
           </div>
-          <div className='font-bold text-white text-sm mb-1'>
-           {customer ? `${customer.fname} ${customer.lname}` : item.penerima}
-          </div>
-          <div className='text-xs text-gray-300 mb-1'>{item.address}</div>
-          {isOpen && (
-           <button
-            className='w-full bg-[#FFD823] text-black font-bold py-3 rounded-xl text-center text-base shadow-lg mt-2'
-            onClick={() => handleDetail(item.barcode || item.id)}
-            disabled={loadingDetail}>
-            {loadingDetail ? 'Loading...' : 'Detail Pengiriman'}
-           </button>
-          )}
-         </div>
-        );
-       })
+         );
+        })}
+        <Pagination
+         currentPage={currentPage}
+         totalPages={totalPages}
+         onPageChange={handlePageChange}
+        />
+       </>
       )}
      </div>
     </div>

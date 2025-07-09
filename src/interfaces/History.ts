@@ -44,8 +44,24 @@ export interface DetailData {
 }
 
 export interface HistoryResponse {
+ code: number;
+ status: string;
+ pickup: number;
+ ijinkan_berangkat: string;
+ is_permission: number;
  data: {
+  current_page: number;
   data: HistoryItem[];
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
  };
 }
 

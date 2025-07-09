@@ -22,8 +22,8 @@ export default function LoginForm() {
     if (data && (data.success || data.status === 'success')) {
       router.push(`/auth/otp?phone=${phoneNumber}`);
     } else if (
-      (data && (data.status === 'fail' || data.code === 400 || (data.message && data.message.toLowerCase().includes("tidak terdaftar")))) ||
-      (error && error.toLowerCase().includes("tidak terdaftar"))
+      (data && (data.status === 'fail' || data.code === 400 || (data.message && data.message.toLowerCase().includes("Akun tidak terdaftar")))) ||
+      (error && error.toLowerCase().includes("Akun tidak terdaftar"))
     ) {
       setErrorMessage(data?.message || error || "Nomor yang anda masukkan tidak terdaftar disistem, segera hubungi admin.");
       setShowError(true);

@@ -10,6 +10,7 @@ import HeaderDashboardPage from '../../../../../features/dashboard/components/He
 import HeaderSummaryDashboard from '../../../../../features/dashboard/components/HeaderSummaryDashboard';
 import { useOrderSummary } from '@/hooks/useOrderSummary';
 import {
+ getOrderDetailApi,
  getOrderStatus,
  OrderDetailItem,
  setDeliveryData,
@@ -17,11 +18,14 @@ import {
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import type { Daum } from '@/interfaces/Dashboard';
+import Pagination from '@/components/Pagination';
 
 export default function DashboardPage() {
  const [orderDetails, setOrderDetails] = useState<OrderDetailItem[]>([]);
  const [orderLoading, setOrderLoading] = useState(false);
  const [orderError, setOrderError] = useState<string | null>(null);
+ const [currentPage, setCurrentPage] = useState(1);
+ const [totalPages, setTotalPages] = useState(1);
  const [showModal, setShowModal] = useState(false);
  const [detailData, setDetailData] = useState<{
   paketId: string;
@@ -54,19 +58,9 @@ export default function DashboardPage() {
    setOrderError(null);
    try {
     const today = format(new Date(), 'yyyy-MM-dd');
-    const token = localStorage.getItem('token');
-    const response = await fetch(`/api/dashboard?tanggal=${today}`, {
-     method: 'GET',
-     headers: {
-      Accept: 'application/json',
-      Authorization: `Bearer ${token}`,
-     },
-    });
-    const data = await response.json();
-    if (!response.ok) {
-     throw new Error(data.error || 'Failed to fetch order detail');
-    }
-    setOrderDetails(data.data.data);
+    const response = await getOrderDetailApi(today, currentPage);
+    setOrderDetails(response.data.data);
+    setTotalPages(response.data.last_page);
    } catch (error: unknown) {
     setOrderError((error as Error)?.message || 'Unknown error');
    } finally {
@@ -75,7 +69,11 @@ export default function DashboardPage() {
   };
 
   fetchOrderDetails();
- }, []);
+ }, [currentPage]); // Add currentPage as dependency
+
+ const handlePageChange = (newPage: number) => {
+  setCurrentPage(newPage);
+ };
 
  if (summaryLoading || orderLoading) {
   return (
@@ -122,7 +120,7 @@ export default function DashboardPage() {
      data.error || data.message || 'Failed to process berangkat'
     );
    }
-  
+
    // kondisi wa nya ada dia
    if (data.data?.phone && data.data?.message) {
     const whatsappUrl = `https://wa.me/${
@@ -233,116 +231,125 @@ export default function DashboardPage() {
        Tidak ada data pengantaran hari ini ...
       </div>
      ) : (
-      filteredOrderDetails.map((orderDetail) => {
-       const statusInfo = getOrderStatus(
-        orderDetail.sts_kirim,
-        orderDetail.kurirdmd ? String(orderDetail.kurirdmd) : null
-       );
-       const customer = orderDetail.datacustomer;
-       const customerName = customer
-        ? `${customer.fname} ${customer.lname}`
-        : orderDetail.penerima || '-';
-       const deliveryAddress = orderDetail.address || '-';
-       const customerPhone = customer?.phone || '';
-       const isExpanded = expandedOrderIds.includes(orderDetail.id);
-       return (
-        <div
-         key={orderDetail.id}
-         className='bg-gray-800 rounded-xl p-4 mb-3 shadow'>
-         <div className='flex items-center justify-between mb-1'>
-          <div className='flex flex-col'>
-           <span className='text-xs text-gray-400 font-mono'>
-            #{orderDetail.barcode}
-           </span>
-           <span className='text-[10px] text-gray-500 mt-0.5'>
-            {orderDetail.kodeproduksi}
-           </span>
-          </div>
-          <span
-           className={`text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ${statusInfo.bgColor} ${statusInfo.textColor}`}>
-           {statusInfo.status}
-          </span>
-          <button
-           className='ml-2'
-           onClick={() => toggleShowActions(orderDetail.id)}
-           aria-label={isExpanded ? 'Sembunyikan aksi' : 'Tampilkan aksi'}>
-           {isExpanded ? (
-            <svg
-             width='20'
-             height='20'
-             fill='none'
-             viewBox='0 0 24 24'>
-             <path
-              d='M6 15l6-6 6 6'
-              stroke='#fff'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-             />
-            </svg>
-           ) : (
-            <svg
-             width='20'
-             height='20'
-             fill='none'
-             viewBox='0 0 24 24'>
-             <path
-              d='M6 9l6 6 6-6'
-              stroke='#fff'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-             />
-            </svg>
-           )}
-          </button>
-         </div>
-         <div className='font-bold text-white text-sm mb-1'>{customerName}</div>
-         <div className='text-xs text-gray-300 mb-1'>{deliveryAddress}</div>
-         {orderDetail.request && orderDetail.request !== '-' && (
-          <div className='text-xs text-yellow-400 mb-2'>
-           Request: {orderDetail.request}
-          </div>
-         )}
-         {orderDetail.datakurirdmd && (
-          <div className='text-xs text-gray-400 mb-2'>
-           Kurir: {orderDetail.datakurirdmd.name}
-          </div>
-         )}
-         {isExpanded && (
-          <>
-           <div className='flex gap-2 mt-3'>
-            <a
-             href={`https://wa.me/${customerPhone}`}
-             target='_blank'
-             rel='noopener noreferrer'
-             className='flex-1 bg-green-500 text-white font-semibold py-2 rounded-xl text-sm text-center flex items-center justify-center'>
-             Hubungi Customer
-            </a>
-            <button
-             className='flex-1 bg-[#FFD823] text-black font-semibold py-2 rounded-xl text-sm'
-             onClick={() => setSelectedOrderForPhoto(orderDetail)}>
-             Foto Pengantaran
-            </button>
+      <>
+       {filteredOrderDetails.map((orderDetail) => {
+        const statusInfo = getOrderStatus(
+         orderDetail.sts_kirim,
+         orderDetail.kurirdmd ? String(orderDetail.kurirdmd) : null
+        );
+        const customer = orderDetail.datacustomer;
+        const customerName = customer
+         ? `${customer.fname} ${customer.lname}`
+         : orderDetail.penerima || '-';
+        const deliveryAddress = orderDetail.address || '-';
+        const customerPhone = customer?.phone || '';
+        const isExpanded = expandedOrderIds.includes(orderDetail.id);
+        return (
+         <div
+          key={orderDetail.id}
+          className='bg-gray-800 rounded-xl p-4 mb-3 shadow'>
+          <div className='flex items-center justify-between mb-1'>
+           <div className='flex flex-col'>
+            <span className='text-xs text-gray-400 font-mono'>
+             #{orderDetail.barcode}
+            </span>
+            <span className='text-[10px] text-gray-500 mt-0.5'>
+             {orderDetail.kodeproduksi}
+            </span>
            </div>
-           {orderDetail.sts_kirim === '0' && (
-            <button
-             className='w-full bg-[#FFD823] text-black font-bold py-4 rounded-xl text-center text-base shadow-lg mt-4 mb-2'
-             onClick={() => handleBerangkat(orderDetail)}
-             disabled={berangkatLoading}>
-             {berangkatLoading ? 'Processing...' : 'Berangkat Sekarang'}
-            </button>
-           )}
-           {berangkatError && (
-            <div className='text-red-500 text-sm text-center mt-2'>
-             {berangkatError}
+           <span
+            className={`text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 ${statusInfo.bgColor} ${statusInfo.textColor}`}>
+            {statusInfo.status}
+           </span>
+           <button
+            className='ml-2'
+            onClick={() => toggleShowActions(orderDetail.id)}
+            aria-label={isExpanded ? 'Sembunyikan aksi' : 'Tampilkan aksi'}>
+            {isExpanded ? (
+             <svg
+              width='20'
+              height='20'
+              fill='none'
+              viewBox='0 0 24 24'>
+              <path
+               d='M6 15l6-6 6 6'
+               stroke='#fff'
+               strokeWidth='2'
+               strokeLinecap='round'
+               strokeLinejoin='round'
+              />
+             </svg>
+            ) : (
+             <svg
+              width='20'
+              height='20'
+              fill='none'
+              viewBox='0 0 24 24'>
+              <path
+               d='M6 9l6 6 6-6'
+               stroke='#fff'
+               strokeWidth='2'
+               strokeLinecap='round'
+               strokeLinejoin='round'
+              />
+             </svg>
+            )}
+           </button>
+          </div>
+          <div className='font-bold text-white text-sm mb-1'>
+           {customerName}
+          </div>
+          <div className='text-xs text-gray-300 mb-1'>{deliveryAddress}</div>
+          {orderDetail.request && orderDetail.request !== '-' && (
+           <div className='text-xs text-yellow-400 mb-2'>
+            Request: {orderDetail.request}
+           </div>
+          )}
+          {orderDetail.datakurirdmd && (
+           <div className='text-xs text-gray-400 mb-2'>
+            Kurir: {orderDetail.datakurirdmd.name}
+           </div>
+          )}
+          {isExpanded && (
+           <>
+            <div className='flex gap-2 mt-3'>
+             <a
+              href={`https://wa.me/${customerPhone}`}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='flex-1 bg-green-500 text-white font-semibold py-2 rounded-xl text-sm text-center flex items-center justify-center'>
+              Hubungi Customer
+             </a>
+             <button
+              className='flex-1 bg-[#FFD823] text-black font-semibold py-2 rounded-xl text-sm'
+              onClick={() => setSelectedOrderForPhoto(orderDetail)}>
+              Foto Pengantaran
+             </button>
             </div>
-           )}
-          </>
-         )}
-        </div>
-       );
-      })
+            {orderDetail.sts_kirim === '0' && (
+             <button
+              className='w-full bg-[#FFD823] text-black font-bold py-4 rounded-xl text-center text-base shadow-lg mt-4 mb-2'
+              onClick={() => handleBerangkat(orderDetail)}
+              disabled={berangkatLoading}>
+              {berangkatLoading ? 'Processing...' : 'Berangkat Sekarang'}
+             </button>
+            )}
+            {berangkatError && (
+             <div className='text-red-500 text-sm text-center mt-2'>
+              {berangkatError}
+             </div>
+            )}
+           </>
+          )}
+         </div>
+        );
+       })}
+       <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+       />
+      </>
      )}
     </>
    </div>
@@ -403,7 +410,7 @@ export default function DashboardPage() {
           const detailJson = await detailRes.json();
           if (!detailRes.ok)
            throw new Error(detailJson.error || 'Gagal ambil detail pengiriman');
-          
+
           const detailData = detailJson.data || detailJson;
           setRealDetail({
            ...detailData,

@@ -22,17 +22,23 @@ export const scanBarcode = async (barcode: string): Promise<ScanResponse> => {
 };
 
 export const getOrderHistoryApi = async (
- tanggal?: string
+ tanggal?: string,
+ page: number = 1
 ): Promise<HistoryResponse> => {
  const token = localStorage.getItem('token');
  if (!token) throw new Error('No authentication token found');
- const query = tanggal ? `?tanggal=${encodeURIComponent(tanggal)}` : '';
- const response = await fetch(`/api/history${query}`, {
+
+ const queryParams = new URLSearchParams();
+ if (tanggal) queryParams.append('tanggal', tanggal);
+ queryParams.append('page', page.toString());
+
+ const response = await fetch(`/api/history?${queryParams.toString()}`, {
   headers: {
    Authorization: `Bearer ${token}`,
    Accept: 'application/json',
   },
  });
+
  const data = await response.json();
  if (!response.ok)
   throw new Error(data.error || 'Failed to fetch order history');
@@ -50,7 +56,6 @@ export const getOrderHistoryDetailApi = async (barcode: string | number) => {
   },
  });
  const data = await response.json();
- // console.log(data);
  if (!response.ok)
   throw new Error(data.error || 'Failed to fetch order detail');
  return data;
