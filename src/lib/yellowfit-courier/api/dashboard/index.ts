@@ -1,4 +1,4 @@
-import { apiCall, axiosExternalInstance } from '../BaseUrl';
+import { apiCall } from '../BaseUrl';
 import { API_ENDPOINTS } from '../ApiEndpoints';
 import type {
  Root as OrderDetailResponse,
@@ -43,25 +43,25 @@ export const getOrderDetailApi = async (
   }
 
   const query = tanggal ? `?tanggal=${encodeURIComponent(tanggal)}` : '';
-  const response = await axiosExternalInstance.get<OrderDetailResponse>(
-   `${API_ENDPOINTS.V2_ORDER_DETAIL}${query}`,
-   {
-    headers: {
-     Authorization: `Bearer ${token}`,
-     Accept: 'application/json',
-    },
-   }
-  );
+  const response = await fetch(`/api/dashboard${query}`, {
+   method: 'GET',
+   headers: {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/json',
+   },
+  });
 
-  console.log('response order detail:', response.data);
-  return response.data;
+  const data = await response.json();
+  if (!response.ok) {
+   throw new Error(data.error || 'Failed to fetch order detail');
+  }
+
+  console.log('response order detail:', data);
+  return data;
  } catch (error: unknown) {
   console.error('Order detail error:', error);
   throw new Error(
-   (error as { response?: { data?: { message?: string } } })?.response?.data
-    ?.message ||
-    (error as Error)?.message ||
-    'Failed to fetch order detail'
+   (error as { message?: string })?.message || 'Failed to fetch order detail'
   );
  }
 };
@@ -85,7 +85,6 @@ export const getOrderSummaryApi = async (
    }
   );
   const data = await response.json();
-  console.log('Order summary response:', data);
 
   if (!response.ok) {
    throw new Error(data.error || 'Failed to fetch order summary');
