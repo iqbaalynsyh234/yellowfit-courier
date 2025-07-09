@@ -375,7 +375,6 @@ export default function DashboardPage() {
           setRealDetail(null);
           setDetailError(null);
 
-          // Refresh order details to get updated status
           const token = localStorage.getItem('token');
           const today = format(new Date(), 'yyyy-MM-dd');
           const orderResponse = await fetch(`/api/dashboard?tanggal=${today}`, {
