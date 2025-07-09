@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
    generate_code
   )}&tanggal=${encodeURIComponent(tanggal)}`;
 
-  console.log('Calling API:', apiUrl); // Debug log
+//   console.log('Calling API:', apiUrl); // Debug log
 
   const response = await fetch(apiUrl, {
    method: 'GET',
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
   if (!response.ok) {
    const errorText = await response.text();
-   console.error('API Error Response:', errorText); // Debug log
+//    console.error('API Error Response:', errorText); // Debug log
    try {
     const errorJson = JSON.parse(errorText);
     return NextResponse.json(
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
   const data = await response.json();
   return NextResponse.json(data);
  } catch (error: Error | unknown) {
-  console.error('Berangkat error:', error); // Debug log
+//   console.error('Berangkat error:', error); // Debug log
   return NextResponse.json(
    { error: error instanceof Error ? error.message : 'Internal server error' },
    { status: 500 }
