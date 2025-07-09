@@ -1,52 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-interface ApiError extends Error {
- message: string;
-}
-
 export async function GET(request: NextRequest) {
  try {
-  const { searchParams } = new URL(request.url);
+  const searchParams = request.nextUrl.searchParams;
   const tanggal = searchParams.get('tanggal');
-  const token = request.headers.get('authorization');
+  const page = searchParams.get('page') || '1';
 
-  if (!tanggal) {
-   return NextResponse.json({ error: 'Tanggal is required' }, { status: 400 });
-  }
+  const token = request.headers.get('authorization')?.split(' ')[1];
   if (!token) {
-   return NextResponse.json(
-    { error: 'No authentication token found' },
-    { status: 401 }
-   );
+   throw new Error('No authentication token provided');
   }
 
-  const apiUrl = `https://api.yellowfitkitchen.com/api/v2/order/detail?tanggal=${encodeURIComponent(
-   tanggal
-  )}`;
-  const response = await fetch(apiUrl, {
-   method: 'GET',
-   headers: {
-    Accept: 'application/json',
-    Authorization: token,
-   },
-  });
+  const response = await fetch(
+   `https://api.yellowfitkitchen.com/api/v2/order/detail?tanggal=${tanggal}&page=${page}`,
+   {
+    headers: {
+     Accept: 'application/json',
+     Authorization: `Bearer ${token}`,
+    },
+   }
+  );
 
   const data = await response.json();
-
   if (!response.ok) {
-   return NextResponse.json(
-    { error: data.message || 'Failed to fetch order detail' },
-    { status: response.status }
-   );
+   throw new Error(data.message || 'Failed to fetch dashboard data');
   }
 
   return NextResponse.json(data);
  } catch (error: unknown) {
-  console.error('Proxy order detail error:', error);
-  const apiError = error as ApiError;
-  return NextResponse.json(
-   { error: apiError.message || 'Internal server error' },
-   { status: 500 }
-  );
+  console.error('Dashboard API error:', error);
+  const errorMessage =
+   error instanceof Error ? error.message : 'Internal server error';
+  return NextResponse.json({ error: errorMessage }, { status: 500 });
  }
 }

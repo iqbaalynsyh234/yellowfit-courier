@@ -1,33 +1,24 @@
 import { useState } from 'react';
-import { signinApi } from '@/lib/yellowfit-courier/api/signin/index';
+import { signinApi } from '@/lib/yellowfit-courier/api/signin';
 
-export function useUserLogin() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+export const useUserLogin = () => {
+ const [loading, setLoading] = useState(false);
+ const [error, setError] = useState<string | null>(null);
 
-  const login = async (phone: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await signinApi({ phone });
-      setLoading(false);
-      
-      // Store token if provided in the response
-      if (data && data.data?.token) {
-        localStorage.setItem('token', data.data.token);
-      }
-      
-      return data;
-    } catch (err: any) {
-      setLoading(false);
-      if (err.message) {
-        setError(err.message);
-      } else {
-        setError('Terjadi kesalahan, coba lagi!');
-      }
-      return null;
-    }
-  };
+ const login = async (phone: string) => {
+  try {
+   setLoading(true);
+   setError(null);
+   const response = await signinApi({ phone });
+   return response;
+  } catch (err) {
+   const errorMessage = err instanceof Error ? err.message : 'Login failed';
+   setError(errorMessage);
+   return { success: false, message: errorMessage };
+  } finally {
+   setLoading(false);
+  }
+ };
 
-  return { login, loading, error, setError };
-}
+ return { login, loading, error, setError };
+};

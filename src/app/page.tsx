@@ -30,11 +30,10 @@ export default function Home() {
    }
   };
 
-  // Check immediately and then set up periodic checks
   checkAuthStatus();
 
-  // Optional: Set up periodic checks every 5 minutes
-  const interval = setInterval(checkAuthStatus, 5 * 60 * 1000);
+  // Check auth status every minute instead of 5 minutes for better security
+  const interval = setInterval(checkAuthStatus, 60 * 1000);
 
   return () => {
    clearInterval(interval);
