@@ -38,11 +38,7 @@ export default function AlreadyExits({
     </svg>
    </div>
    <div className='font-bold text-xl text-black mb-2 text-center'>
-    {message || 'Box sudah di Pickup oleh Kurir'}
-    <br />
-    {courierInfo
-     ? `${courierInfo.name} (${courierInfo.phone})`
-     : 'Unknown Courier'}
+    {courierInfo ? `${courierInfo.name} (${courierInfo.phone})` : (message || 'Box sudah di Pickup oleh Kurir')}
    </div>
    <div className='text-center text-black/80 mb-6 text-base'>
     Silahkan hubungi koordinator

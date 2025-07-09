@@ -404,8 +404,7 @@ export default function DashboardPage() {
           const detailJson = await detailRes.json();
           if (!detailRes.ok)
            throw new Error(detailJson.error || 'Gagal ambil detail pengiriman');
-
-          // Update realDetail with submitted penerima
+          
           const detailData = detailJson.data || detailJson;
           setRealDetail({
            ...detailData,
